@@ -1,0 +1,6 @@
+JBoss7ManagerServiceProxy.execute():
+Server request for Deployments
+{"operation" : "read-children-names", "child-type" : "deployment", "address" : null}
+
+Server request for socket bindings
+{"operation" : "read-resource-description", "address" : [{ "socket-binding-group" : "standard-sockets" },{ "socket-binding" : "http" }]}
