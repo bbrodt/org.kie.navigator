@@ -35,28 +35,30 @@ public class KieService implements IKieService {
 	 */
 	public KieService(IServer server) {
 		this.server = server;
-		delegate = new KieServiceImpl();
-		delegate.setServer(server);
 	}
 
+	public IKieServiceImpl getDelegate() {
+		if (delegate==null)
+			delegate = loadDelegate();
+		return delegate;
+	}
+	
 	protected IKieServiceImpl loadDelegate() {
 		IKieServiceImpl result = null;
 		try {
 			IConfigurationElement[] config = Platform.getExtensionRegistry()
 					.getConfigurationElementsFor(IKieServiceImpl.KIE_SERVICE_IMPL_ID);
-			for (IConfigurationElement serviceImplElement : config) {
-				for (IConfigurationElement e : serviceImplElement.getChildren()) {
-					if ("containerBinding".equals(e.getName())) {
-						String serverId = e.getAttribute("serverId");
-						if (server.getServerType().getId().equals(serverId)) {
-							String kieVersion = e.getAttribute("kieVersion");
-							if ( getDeployedKieVersion(server).equals(kieVersion) ) {
-								Object o = e.createExecutableExtension("class");
-								if (o instanceof IKieServiceImpl) {
-									result = (IKieServiceImpl)o;
-									result.setServer(server);
-									return result;
-								}
+			for (IConfigurationElement e : config) {
+				if ("containerBinding".equals(e.getName())) {
+					String serverId = e.getAttribute("serverId");
+					if (getServerTypeId().equals(serverId)) {
+						String kieVersion = e.getAttribute("kieVersion");
+						if ( getDeployedKieVersion().equals(kieVersion) ) {
+							Object o = e.createExecutableExtension("class");
+							if (o instanceof IKieServiceImpl) {
+								result = (IKieServiceImpl)o;
+								result.setServer(server);
+								return result;
 							}
 						}
 					}
@@ -70,13 +72,30 @@ public class KieService implements IKieService {
 	}
 	
 	/**
-	 * @param server2
+	 * Return the version number of the KIE Workbench that is installed on the
+	 * given server. If the server is not running or not responsive, use a value
+	 * from the Preference Store.
+	 * 
+	 * @param server
 	 * @return
 	 */
-	protected Object getDeployedKieVersion(IServer server) {
-		return null;
+	public String getDeployedKieVersion() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		String value = store.getString(getKieVersionPreferenceKey());
+		if (value==null || value.isEmpty())
+			value = "org.jboss.kie.60"; // just a bootstrap for testing
+		return value;
 	}
 
+	public void setDeployedKieVersion(String version) {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		store.putValue(getKieVersionPreferenceKey(), version);
+	}
+
+	public String getServerTypeId() {
+		return server.getServerType().getId();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.server.IKieService#getOrganizations()
 	 */
@@ -85,11 +104,12 @@ public class KieService implements IKieService {
 		List<IKieOrganization> orgs = new ArrayList<IKieOrganization>();
 		if (isServerRunning()) {
 			// fetch from server and synch if needed
+			orgs = getDelegate().getOrganizations();
 		}
 		else {
 			// fetch from preference store
 			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-			String value =  store.getString(server.getId()+"/organizations");
+			String value =  store.getString(getKieOrganizationsPreferenceKey());
 			for (String v : value.split("|")) {
 				IKieOrganization org = new KieOrganization(server, v);
 				orgs.add(org);
@@ -116,5 +136,21 @@ public class KieService implements IKieService {
 
 	protected boolean isServerRunning() {
 		return server.getServerState() == IServer.STATE_STARTED;
+	}
+	
+	protected String getKieVersionPreferenceKey() {
+		return server.getId()+"/kieVersion";
+	}
+	
+	protected String getKieOrganizationsPreferenceKey() {
+		return server.getId()+"/organizations";
+	}
+	
+	protected String getKieRepositoriesPreferenceKey() {
+		return server.getId()+"/repositories";
+	}
+	
+	protected String getKieProjectsPreferenceKey() {
+		return server.getId()+"/projects";
 	}
 }

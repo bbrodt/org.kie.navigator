@@ -18,7 +18,7 @@ import org.eclipse.wst.server.core.IServer;
 /**
  *
  */
-public class KieServiceImpl implements IKieServiceImpl {
+public abstract class KieServiceImpl implements IKieServiceImpl {
 
 	private IServer server;
 	
@@ -33,5 +33,17 @@ public class KieServiceImpl implements IKieServiceImpl {
 		this.server = server;
 	}
 
+	protected String httpGet(String request) {
+		return "";
+	}
+
+	protected String httpDelete(String request) {
+		return "";
+	}
+
+	protected String httpPost(String request) {
+		return "";
+	}
 	
+	protected abstract String getHttpUrl();
 }

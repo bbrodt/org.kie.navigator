@@ -13,7 +13,10 @@
 
 package org.kie.navigator.view.server.jbpm60;
 
+import java.util.List;
+
 import org.eclipse.wst.server.core.IServer;
+import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.KieServiceImpl;
 
 /**
@@ -31,5 +34,21 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 
 	String getVersion() {
 		return KIE_VERSION;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.server.IKieServiceImpl#getOrganizations()
+	 */
+	@Override
+	public List<IKieOrganization> getOrganizations() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.server.KieServiceImpl#getHttpUrl()
+	 */
+	@Override
+	protected String getHttpUrl() {
+		return null;
 	}
 }

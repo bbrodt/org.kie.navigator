@@ -11,26 +11,22 @@
  * @author Bob Brodt
  ******************************************************************************/
 
-package org.kie.navigator.view.server;
-
-import java.util.List;
+package org.kie.navigator.view.content;
 
 import org.eclipse.wst.server.core.IServer;
 
 /**
  *
  */
-public interface IKieServiceImpl {
-
-	public final static String KIE_SERVICE_IMPL_ID = "org.kie.navigator.serviceImpl";
+public class ServerNode extends ResourceNode {
 
 	/**
 	 * @param server
+	 * @param name
 	 */
-	void setServer(IServer server);
+	public ServerNode(IServer server, String name) {
+		super(server, name);
+		// TODO Auto-generated constructor stub
+	}
 
-	/**
-	 * @return
-	 */
-	List<IKieOrganization> getOrganizations();
 }
