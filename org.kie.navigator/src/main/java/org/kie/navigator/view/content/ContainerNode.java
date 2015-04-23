@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
-import org.jboss.ide.eclipse.as.ui.Messages;
 
 /**
  * ContainerNode
@@ -62,14 +61,14 @@ public abstract class ContainerNode<T extends IContainerNode<?>> extends Content
 
     public final void load() {
         if (getServer().getServerState() != IServer.STATE_STARTED) {
-            setError(new ErrorNode(this, Messages.ServerContent_Label_Not_Connected));
+            setError(new ErrorNode(this, "Not connected"));
             return;
         }
         try {
             delegateLoad();
             clearError();
         } catch (Exception e) {
-            setError(new ErrorNode(this, Messages.ServerContent_Label_Retrieval_Error));
+            setError(new ErrorNode(this, "Loading error"));
         }
     }
 

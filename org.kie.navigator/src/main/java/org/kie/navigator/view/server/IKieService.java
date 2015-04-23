@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface IKieService {
 
-	List<IKieOrganization> getOrganizations();
-	List<IKieRepository> getRepositories(IKieOrganization org);
-	List<IKieProject> getProjects(IKieRepository repo);
+	List<IKieOrganization> getOrganizations() throws RuntimeException;
+	List<IKieRepository> getRepositories(IKieOrganization org) throws RuntimeException;
+	List<IKieProject> getProjects(IKieRepository repo) throws RuntimeException;
 }

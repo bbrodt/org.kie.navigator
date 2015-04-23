@@ -10,11 +10,8 @@
  ******************************************************************************/ 
 package org.kie.navigator.view.content;
 
-import java.util.Deque;
-import java.util.LinkedList;
-
 import org.eclipse.wst.server.core.IServer;
-import org.jboss.dmr.ModelNode;
+import org.kie.navigator.view.server.KieService;
 
 /**
  * ContentNode
@@ -30,7 +27,8 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
     public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
 
     private final IServer server;
-    private IResourceNode parent;
+    private KieService service;
+    private IContainerNode parent;
     private T container;
     private final String name;
 
@@ -43,12 +41,12 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
 
     protected ContentNode(T container, String name) {
         this.server = container.getServer();
-        this.parent = container instanceof IResourceNode ? (IResourceNode) container : container.getParent();
+        this.parent = container instanceof IContainerNode ? (IContainerNode) container : container.getParent();
         this.container = container;
         this.name = name;
     }
 
-    public IResourceNode getParent() {
+    public IContainerNode getParent() {
         return parent;
     }
 
@@ -71,29 +69,16 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
     public void dispose() {
         container = null;
         parent = null;
-    }
-
-    /**
-     * Constructs an address list that can be used in an operation request.
-     * 
-     * @param resource the resource being addressed
-     * @return a model node containing the list of addresses to the resource.
-     */
-    protected static ModelNode getManagementAddress(IResourceNode resource) {
-        ModelNode address = new ModelNode();
-        Deque<IResourceNode> resources = new LinkedList<IResourceNode>();
-        resources.push(resource);
-        for (IResourceNode parent = resource.getParent(); parent != null; parent = parent.getParent()) {
-            resources.push(parent);
+        if (service!=null) {
+        	service.dispose();
+        	service = null;
         }
-        do {
-            resource = resources.pop();
-            ITypeNode type = resource.getContainer();
-            if (type != null) {
-                address.add(type.getName(), resource.getName());
-            }
-        } while (!resources.isEmpty());
-        return address;
     }
 
+    protected KieService getKieService() {
+    	 if (service==null) {
+    		 service = new KieService(server);
+    	 }
+    	 return service;
+    }
 }

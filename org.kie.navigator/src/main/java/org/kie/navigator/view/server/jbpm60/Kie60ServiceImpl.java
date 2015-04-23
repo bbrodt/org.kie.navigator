@@ -40,7 +40,7 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 	 * @see org.kie.navigator.view.server.IKieServiceImpl#getOrganizations()
 	 */
 	@Override
-	public List<IKieOrganization> getOrganizations() {
+	public List<IKieOrganization> getOrganizations()  throws RuntimeException {
 		return null;
 	}
 

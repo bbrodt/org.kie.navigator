@@ -10,15 +10,12 @@
  ******************************************************************************/ 
 package org.kie.navigator.view;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.eclipse.core.internal.resources.WorkspaceRoot;
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -30,15 +27,13 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.wst.server.core.IServer;
-import org.eclipse.wst.server.core.IServerWorkingCopy;
 import org.eclipse.wst.server.core.ServerCore;
-import org.eclipse.wst.server.core.internal.Server;
 import org.jboss.ide.eclipse.as.ui.Messages;
 import org.jboss.tools.as.wst.server.ui.xpl.ServerToolTip;
 import org.kie.navigator.view.content.IContainerNode;
 import org.kie.navigator.view.content.IContentNode;
-import org.kie.navigator.view.content.IResourceNode;
-import org.kie.navigator.view.content.ResourceNode;
+import org.kie.navigator.view.content.ServerNode;
+import org.kie.navigator.view.server.KieService;
 
 /**
  * ServerContentTreeContentProvider
@@ -119,7 +114,7 @@ public class KieNavigatorContentProvider implements ITreeContentProvider {
 			tooltip.deactivate();
 		tooltip = new ServerToolTip(((TreeViewer)viewer).getTree()) {
 			protected boolean isMyType(Object selected) {
-				return selected instanceof ResourceNode;
+				return selected instanceof ServerNode;
 			}
 			protected void fillStyledText(Composite parent, StyledText sText, Object o) {
 				sText.setText("View JBoss-7 management details."); //$NON-NLS-1$
@@ -136,16 +131,13 @@ public class KieNavigatorContentProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
-    	if (parentElement instanceof WorkspaceRoot) {
+    	if (parentElement instanceof IWorkspaceRoot) {
     		List<Object> results = new ArrayList<Object>();
     		for (IServer s : ServerCore.getServers()) {
-//    			if (s.getServerType().getId().contains("jboss"))
-    				results.add(s);
+    			if (KieService.isSupportedServer(s))
+    				results.add(new ServerNode(s, s.getName()));
     		}
     		return results.toArray();
-    	}
-    	else if (parentElement instanceof IServer) {
-            return new Object[] {new ResourceNode((IServer) parentElement, IResourceNode.ROOT_TYPE) };
         } else if (parentElement instanceof IContainerNode) {
             IContainerNode<?> container = (IContainerNode<?>) parentElement;
             if (pendingUpdates.containsKey(container)) {

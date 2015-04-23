@@ -37,6 +37,9 @@ public class KieService implements IKieService {
 		this.server = server;
 	}
 
+	public void dispose() {
+	}
+	
 	public IKieServiceImpl getDelegate() {
 		if (delegate==null)
 			delegate = loadDelegate();
@@ -71,6 +74,20 @@ public class KieService implements IKieService {
 		return result;
 	}
 	
+	public static boolean isSupportedServer(IServer server) {
+		IConfigurationElement[] config = Platform.getExtensionRegistry()
+				.getConfigurationElementsFor(IKieServiceImpl.KIE_SERVICE_IMPL_ID);
+		for (IConfigurationElement e : config) {
+			if ("containerBinding".equals(e.getName())) {
+				String serverId = e.getAttribute("serverId");
+				if (server.getServerType().getId().equals(serverId)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Return the version number of the KIE Workbench that is installed on the
 	 * given server. If the server is not running or not responsive, use a value
@@ -100,7 +117,7 @@ public class KieService implements IKieService {
 	 * @see org.kie.navigator.view.server.IKieService#getOrganizations()
 	 */
 	@Override
-	public List<IKieOrganization> getOrganizations() {
+	public List<IKieOrganization> getOrganizations() throws RuntimeException {
 		List<IKieOrganization> orgs = new ArrayList<IKieOrganization>();
 		if (isServerRunning()) {
 			// fetch from server and synch if needed
@@ -122,7 +139,7 @@ public class KieService implements IKieService {
 	 * @see org.kie.navigator.view.server.IKieService#getRepositories(org.kie.navigator.view.server.IKieOrganization)
 	 */
 	@Override
-	public List<IKieRepository> getRepositories(IKieOrganization org) {
+	public List<IKieRepository> getRepositories(IKieOrganization org) throws RuntimeException {
 		return new ArrayList<IKieRepository>();
 	}
 
@@ -130,7 +147,7 @@ public class KieService implements IKieService {
 	 * @see org.kie.navigator.view.server.IKieService#getProjects(org.kie.navigator.view.server.IKieRepository)
 	 */
 	@Override
-	public List<IKieProject> getProjects(IKieRepository repo) {
+	public List<IKieProject> getProjects(IKieRepository repo) throws RuntimeException {
 		return new ArrayList<IKieProject>();
 	}
 

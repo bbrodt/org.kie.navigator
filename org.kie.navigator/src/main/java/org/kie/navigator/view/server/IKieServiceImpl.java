@@ -32,5 +32,5 @@ public interface IKieServiceImpl {
 	/**
 	 * @return
 	 */
-	List<IKieOrganization> getOrganizations();
+	List<IKieOrganization> getOrganizations() throws RuntimeException;
 }

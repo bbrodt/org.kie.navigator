@@ -30,7 +30,7 @@ public interface IContentNode<T extends IContainerNode<?>> {
     /**
      * @return the resource containing this node, if any.
      */
-    public IResourceNode getParent();
+    public IContainerNode getParent();
 
     /**
      * @return the containing node.

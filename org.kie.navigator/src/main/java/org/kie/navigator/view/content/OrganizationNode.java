@@ -15,22 +15,17 @@ package org.kie.navigator.view.content;
 
 import java.util.List;
 
-import org.eclipse.wst.server.core.IServer;
-import org.kie.navigator.view.server.IKieOrganization;
-
 /**
  *
  */
-public class ServerNode extends ContainerNode {
+public class OrganizationNode extends ContainerNode<ServerNode> {
 
-	List<IKieOrganization> organizations = null;
-	
 	/**
-	 * @param server
+	 * @param container
 	 * @param name
 	 */
-	public ServerNode(IServer server, String name) {
-		super(server, name);
+	protected OrganizationNode(ServerNode container, String name) {
+		super(container, name);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -38,8 +33,9 @@ public class ServerNode extends ContainerNode {
 	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
 	 */
 	@Override
-	protected List delegateGetChildren() {
-		return organizations;
+	protected List<? extends IContentNode<?>> delegateGetChildren() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -47,7 +43,8 @@ public class ServerNode extends ContainerNode {
 	 */
 	@Override
 	protected void delegateClearChildren() {
-		organizations.clear();
+		// TODO Auto-generated method stub
+		
 	}
 
 	/* (non-Javadoc)
@@ -55,11 +52,8 @@ public class ServerNode extends ContainerNode {
 	 */
 	@Override
 	protected void delegateLoad() throws Exception {
-		organizations = getKieService().getOrganizations();
+		// TODO Auto-generated method stub
+		
 	}
 
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
 }
