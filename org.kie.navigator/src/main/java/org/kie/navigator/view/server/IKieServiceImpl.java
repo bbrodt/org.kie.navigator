@@ -13,6 +13,7 @@
 
 package org.kie.navigator.view.server;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
@@ -37,9 +38,9 @@ public interface IKieServiceImpl {
 	/**
 	 * @return
 	 */
-	List<IKieOrganization> getOrganizations() throws RuntimeException;
+	List<IKieOrganization> getOrganizations() throws IOException;
 
-	List<IKieRepository> getRepositories(IKieOrganization organization) throws RuntimeException;
+	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
 	
-	List<IKieProject> getProjects(IKieRepository repository) throws RuntimeException;
+	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
 }

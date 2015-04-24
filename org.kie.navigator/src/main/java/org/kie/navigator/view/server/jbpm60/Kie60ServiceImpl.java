@@ -13,10 +13,11 @@
 
 package org.kie.navigator.view.server.jbpm60;
 
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.wst.server.core.IServer;
 import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.IKieProject;
 import org.kie.navigator.view.server.IKieRepository;
@@ -24,6 +25,8 @@ import org.kie.navigator.view.server.KieOrganization;
 import org.kie.navigator.view.server.KieProject;
 import org.kie.navigator.view.server.KieRepository;
 import org.kie.navigator.view.server.KieServiceImpl;
+
+import com.eclipsesource.json.*;
 
 /**
  *
@@ -46,10 +49,18 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 	 * @see org.kie.navigator.view.server.IKieServiceImpl#getOrganizations()
 	 */
 	@Override
-	public List<IKieOrganization> getOrganizations()  throws RuntimeException {
+	public List<IKieOrganization> getOrganizations()  throws IOException {
 		List<IKieOrganization> result = new ArrayList<IKieOrganization>();
 		result.add(new KieOrganization(getServer(), "Organization 1"));
 		result.add(new KieOrganization(getServer(), "Organization 2"));
+		
+		String response = httpGet("organizationalunits");
+		JsonArray ja = JsonArray.readFrom(response);
+		for (int i=0; i<ja.size(); ++i) {
+			JsonObject jo = ja.get(i).asObject();
+			result.add(new KieOrganization(getServer(), jo.get("name").asString()));
+		}
+		
 		return result;
 	}
 
@@ -57,10 +68,25 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 	 * @see org.kie.navigator.view.server.IKieServiceImpl#getRepositories(org.kie.navigator.view.server.IKieOrganization)
 	 */
 	@Override
-	public List<IKieRepository> getRepositories(IKieOrganization organization) throws RuntimeException {
+	public List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException {
 		List<IKieRepository> result = new ArrayList<IKieRepository>();
 		result.add(new KieRepository(organization, "Repository 1"));
 		result.add(new KieRepository(organization, "Repository 2"));
+
+		String response = httpGet("organizationalunits");
+		JsonArray ja = JsonArray.readFrom(response);
+		for (int i=0; i<ja.size(); ++i) {
+			JsonObject jo = ja.get(i).asObject();
+			if (organization.getName().equals(jo.get("name").asString())) {
+				JsonArray jar = jo.get("repositories").asArray();
+				for (int j=0; j<jar.size(); ++j) {
+					JsonValue jv = jar.get(j);
+					KieRepository kr = new KieRepository(organization, jv.asString());
+					kr.setResolved(true);
+					result.add(kr);
+				}
+			}
+		}
 		return result;
 	}
 
@@ -68,7 +94,7 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 	 * @see org.kie.navigator.view.server.IKieServiceImpl#getProjects(org.kie.navigator.view.server.IKieOrganization, org.kie.navigator.view.server.IKieRepository)
 	 */
 	@Override
-	public List<IKieProject> getProjects(IKieRepository repository) throws RuntimeException {
+	public List<IKieProject> getProjects(IKieRepository repository) throws IOException {
 		List<IKieProject> result = new ArrayList<IKieProject>();
 		if (repository.isResolved()) {
 			result.add(new KieProject(repository, "Project 1"));
@@ -81,7 +107,7 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 	 * @see org.kie.navigator.view.server.KieServiceImpl#getHttpUrl()
 	 */
 	@Override
-	protected String getHttpUrl() {
-		return null;
+	protected String getKieRESTUrl() {
+		return "http://localhost:8080/jbpm-console/rest";
 	}
 }

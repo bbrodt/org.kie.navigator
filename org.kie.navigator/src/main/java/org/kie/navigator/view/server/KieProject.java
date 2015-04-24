@@ -61,4 +61,7 @@ public class KieProject implements IKieProject {
 		return resolved;
 	}
 
+	public void setResolved(boolean resolved) {
+		this.resolved = resolved;
+	}
 }

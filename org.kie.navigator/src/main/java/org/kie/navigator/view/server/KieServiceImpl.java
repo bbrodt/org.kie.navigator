@@ -13,6 +13,12 @@
 
 package org.kie.navigator.view.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import org.eclipse.wst.server.core.IServer;
 
 /**
@@ -37,8 +43,16 @@ public abstract class KieServiceImpl implements IKieServiceImpl {
 		return server;
 	}
 	
-	protected String httpGet(String request) {
-		return "";
+	protected String httpGet(String request) throws IOException {
+		String host = getKieRESTUrl();
+		URL url = new URL(host + "/" + request);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty("Content", "application/json");
+		String creds = getUsername() + ":" + getPassword();
+		conn.setRequestProperty("Authorization", "Basic " + Base64Util.encode(creds));
+		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
+		return response;
 	}
 
 	protected String httpDelete(String request) {
@@ -48,6 +62,18 @@ public abstract class KieServiceImpl implements IKieServiceImpl {
 	protected String httpPost(String request) {
 		return "";
 	}
+
+	protected void httpClose() {
+		
+	}
 	
-	protected abstract String getHttpUrl();
+	protected String getUsername() {
+		return "admin";
+	}
+	
+	protected String getPassword() {
+		return "admin";
+	}
+	
+	protected abstract String getKieRESTUrl();
 }

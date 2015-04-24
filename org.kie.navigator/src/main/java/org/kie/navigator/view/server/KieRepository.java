@@ -71,4 +71,7 @@ public class KieRepository implements IKieRepository {
 		return resolved;
 	}
 
+	public void setResolved(boolean resolved) {
+		this.resolved = resolved;
+	}
 }

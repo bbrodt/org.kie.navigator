@@ -13,7 +13,7 @@
 
 package org.kie.navigator.view.server;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -117,7 +117,7 @@ public class KieService implements IKieService {
 	 * @see org.kie.navigator.view.server.IKieService#getOrganizations()
 	 */
 	@Override
-	public List<IKieOrganization> getOrganizations() throws RuntimeException {
+	public List<IKieOrganization> getOrganizations() throws IOException {
 //		List<IKieOrganization> result = new ArrayList<IKieOrganization>();
 //		if (isServerRunning()) {
 //			// fetch from server and synch if needed
@@ -140,7 +140,7 @@ public class KieService implements IKieService {
 	 * @see org.kie.navigator.view.server.IKieService#getRepositories(org.kie.navigator.view.server.IKieOrganization)
 	 */
 	@Override
-	public List<IKieRepository> getRepositories(IKieOrganization organization) throws RuntimeException {
+	public List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException {
 		return getDelegate().getRepositories(organization);
 	}
 
@@ -148,7 +148,7 @@ public class KieService implements IKieService {
 	 * @see org.kie.navigator.view.server.IKieService#getProjects(org.kie.navigator.view.server.IKieRepository)
 	 */
 	@Override
-	public List<IKieProject> getProjects(IKieRepository repository) throws RuntimeException {
+	public List<IKieProject> getProjects(IKieRepository repository) throws IOException {
 		return getDelegate().getProjects(repository);
 	}
 
