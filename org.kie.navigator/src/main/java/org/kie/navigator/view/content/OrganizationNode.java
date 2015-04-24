@@ -13,28 +13,40 @@
 
 package org.kie.navigator.view.content;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.kie.navigator.view.server.IKieOrganization;
+import org.kie.navigator.view.server.IKieRepository;
 
 /**
  *
  */
 public class OrganizationNode extends ContainerNode<ServerNode> {
-
+	private final IKieOrganization organization;
+	private List<IKieRepository> repositories = null;
+	
 	/**
 	 * @param container
 	 * @param name
 	 */
-	protected OrganizationNode(ServerNode container, String name) {
-		super(container, name);
-		// TODO Auto-generated constructor stub
+	protected OrganizationNode(ServerNode container, IKieOrganization organization) {
+		super(container, organization.getName());
+		this.organization = organization;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
 	 */
 	@Override
-	protected List<? extends IContentNode<?>> delegateGetChildren() {
-		// TODO Auto-generated method stub
+	protected List<? extends Object> delegateGetChildren() {
+		if (repositories!=null) {
+			List<RepositoryNode> result = new ArrayList<RepositoryNode>();
+			for (IKieRepository repo : repositories) {
+				result.add(new RepositoryNode(this,repo));
+			}
+			return result;
+		}
 		return null;
 	}
 
@@ -43,8 +55,10 @@ public class OrganizationNode extends ContainerNode<ServerNode> {
 	 */
 	@Override
 	protected void delegateClearChildren() {
-		// TODO Auto-generated method stub
-		
+		if (repositories!=null) {
+			repositories.clear();
+			repositories = null;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -52,8 +66,19 @@ public class OrganizationNode extends ContainerNode<ServerNode> {
 	 */
 	@Override
 	protected void delegateLoad() throws Exception {
-		// TODO Auto-generated method stub
-		
+		repositories = getKieService().getRepositories(organization);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
+	 */
+	@Override
+	public boolean hasChildren() {
+		return true;
+	}
 }

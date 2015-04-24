@@ -30,7 +30,16 @@ public interface IKieServiceImpl {
 	void setServer(IServer server);
 
 	/**
+	 * @return server
+	 */
+	IServer getServer();
+	
+	/**
 	 * @return
 	 */
 	List<IKieOrganization> getOrganizations() throws RuntimeException;
+
+	List<IKieRepository> getRepositories(IKieOrganization organization) throws RuntimeException;
+	
+	List<IKieProject> getProjects(IKieRepository repository) throws RuntimeException;
 }

@@ -19,6 +19,10 @@ import org.kie.navigator.Activator;
 import org.kie.navigator.view.content.IContainerNode;
 import org.kie.navigator.view.content.IContentNode;
 import org.kie.navigator.view.content.IErrorNode;
+import org.kie.navigator.view.content.OrganizationNode;
+import org.kie.navigator.view.content.ProjectNode;
+import org.kie.navigator.view.content.RepositoryNode;
+import org.kie.navigator.view.content.ServerNode;
 
 /**
  * ServerContentLabelProvider
@@ -45,10 +49,20 @@ public class KieNavigatorLabelProvider extends LabelProvider {
 
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof IServer) {
-			if (((IServer) element).getServerState() == IServer.STATE_STARTED)
-				return Activator.getImageDescriptor(Activator.IMG_SERVER_RUN).createImage();
-			return Activator.getImageDescriptor(Activator.IMG_SERVER_STOP).createImage();
+		if (element instanceof ServerNode) {
+			if (((ServerNode) element).getServer().getServerState() == IServer.STATE_STARTED)
+				return Activator.getImageDescriptor(Activator.IMG_SERVER_STARTED).createImage();
+			return Activator.getImageDescriptor(Activator.IMG_SERVER_STOPPED).createImage();
+		} else if (element instanceof OrganizationNode) {
+			return Activator.getImageDescriptor(Activator.IMG_ORGANIZATION).createImage();
+		} else if (element instanceof RepositoryNode) {
+			if (((RepositoryNode) element).isResolved())
+				return Activator.getImageDescriptor(Activator.IMG_REPOSITORY).createImage();
+			return Activator.getImageDescriptor(Activator.IMG_REPOSITORY_UNAVAILABLE).createImage();
+		} else if (element instanceof ProjectNode) {
+			if (((ProjectNode) element).isResolved())
+				return Activator.getImageDescriptor(Activator.IMG_PROJECT).createImage();
+			return Activator.getImageDescriptor(Activator.IMG_PROJECT_CLOSED).createImage();
 		} else if (element instanceof IContainerNode<?>) {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
 		} else if (element instanceof IErrorNode) {

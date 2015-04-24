@@ -28,10 +28,24 @@
 			<includes>
 				<contentExtension
 					isRoot="true"
-					pattern="org.kie.navigator.view.server.content">
+					pattern="org.kie.navigator.kieContent">
+				</contentExtension>
+				<contentExtension
+					isRoot="false"
+					pattern="org.eclipse.jdt.java.ui.javaContent">
+				</contentExtension>
+				<contentExtension
+					isRoot="true"
+					pattern="org.eclipse.jdt.ui.javaModelContent">
+				</contentExtension>
+				<contentExtension
+					isRoot="false"
+					pattern="org.eclipse.egit.ui.RepositoriesViewContent">
 				</contentExtension>
 			</includes>
 		</viewerContentBinding>
+		<!-- content from eclipse UI Project Viewer -->
+
 		<viewerActionBinding viewerId="org.kie.navigator.view">
 			<includes>
 				<actionExtension pattern="org.eclipse.ui.navigator.resources.*">
@@ -41,12 +55,13 @@
 			</includes>
 		</viewerActionBinding>
 	</extension>
+	
 	<extension point="org.eclipse.ui.navigator.navigatorContent">
 		<navigatorContent
 			activeByDefault="true"
 			contentProvider="org.kie.navigator.view.KieNavigatorContentProvider"
 			icon="icons/navigator.gif"
-			id="org.kie.navigator.view.server.content"
+			id="org.kie.navigator.kieContent"
 			labelProvider="org.kie.navigator.view.KieNavigatorLabelProvider"
 			name="KIE Navigator - Server Content"
 			priority="normal">

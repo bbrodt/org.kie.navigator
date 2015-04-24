@@ -11,22 +11,26 @@
  * @author Bob Brodt
  ******************************************************************************/
 
-package org.kie.navigator.view.server;
+package org.kie.navigator;
 
-import java.util.List;
+import org.eclipse.ui.navigator.CommonNavigator;
 
-import org.eclipse.wst.server.core.IServer;
 
 /**
- *
+ * This is a placeholder class that replaces the default IWorkspaceRoot used as
+ * initial input for CommonViewers. This class is part of the public API and
+ * allows other CommonNavigator plugins to embed KIE Navigator content as child
+ * or root nodes into their own content.
  */
-public interface IKieProject {
+public class KieNavigatorContentRoot {
+
+	protected CommonNavigator viewer;
 
 	/**
-	 * @return
+	 * @param kieNavigatorView
 	 */
-	String getName();
-	boolean isResolved();
-	IServer getServer();
+	public KieNavigatorContentRoot(CommonNavigator viewer) {
+		this.viewer = viewer;
+	}
 
 }

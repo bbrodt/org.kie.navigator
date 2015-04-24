@@ -13,35 +13,52 @@
 
 package org.kie.navigator.view.server;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.wst.server.core.IServer;
 
 /**
  *
  */
-public class KieOrganization implements IKieOrganization {
+public class KieProject implements IKieProject {
 
-    private final IServer server;
+	private final IKieRepository repository;
 	private final String name;
+	
+	// debug/test only
+	private boolean resolved;
+	private static boolean resolvedToggle;
+	
 	/**
-	 * 
+	 * @param repository
+	 * @param string
 	 */
-	public KieOrganization(IServer server, String name) {
-		this.server = server;
+	public KieProject(IKieRepository repository, String name) {
+		this.repository = repository;
 		this.name = name;
+		resolvedToggle = resolved = !resolvedToggle;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.server.IKieProject#getName()
+	 */
+	@Override
 	public String getName() {
 		return name;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.server.IKieProject#getServer()
+	 */
+	@Override
 	public IServer getServer() {
-		return server;
+		return repository.getServer();
 	}
-	
-	public List<IKieRepository> getRepositories() {
-		return new ArrayList<IKieRepository>();
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.server.IKieProject#isResolved()
+	 */
+	@Override
+	public boolean isResolved() {
+		return resolved;
 	}
+
 }

@@ -118,37 +118,38 @@ public class KieService implements IKieService {
 	 */
 	@Override
 	public List<IKieOrganization> getOrganizations() throws RuntimeException {
-		List<IKieOrganization> orgs = new ArrayList<IKieOrganization>();
-		if (isServerRunning()) {
-			// fetch from server and synch if needed
-			orgs = getDelegate().getOrganizations();
-		}
-		else {
-			// fetch from preference store
-			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-			String value =  store.getString(getKieOrganizationsPreferenceKey());
-			for (String v : value.split("|")) {
-				IKieOrganization org = new KieOrganization(server, v);
-				orgs.add(org);
-			}
-		}
-		return orgs;
+//		List<IKieOrganization> result = new ArrayList<IKieOrganization>();
+//		if (isServerRunning()) {
+//			// fetch from server and synch if needed
+//			result = getDelegate().getOrganizations();
+//		}
+//		else {
+//			// fetch from preference store
+//			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+//			String value =  store.getString(getKieOrganizationsPreferenceKey());
+//			for (String v : value.split("|")) {
+//				IKieOrganization org = new KieOrganization(server, v);
+//				result.add(org);
+//			}
+//		}
+//		return result;
+		return getDelegate().getOrganizations();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.server.IKieService#getRepositories(org.kie.navigator.view.server.IKieOrganization)
 	 */
 	@Override
-	public List<IKieRepository> getRepositories(IKieOrganization org) throws RuntimeException {
-		return new ArrayList<IKieRepository>();
+	public List<IKieRepository> getRepositories(IKieOrganization organization) throws RuntimeException {
+		return getDelegate().getRepositories(organization);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.server.IKieService#getProjects(org.kie.navigator.view.server.IKieRepository)
 	 */
 	@Override
-	public List<IKieProject> getProjects(IKieRepository repo) throws RuntimeException {
-		return new ArrayList<IKieProject>();
+	public List<IKieProject> getProjects(IKieRepository repository) throws RuntimeException {
+		return getDelegate().getProjects(repository);
 	}
 
 	protected boolean isServerRunning() {

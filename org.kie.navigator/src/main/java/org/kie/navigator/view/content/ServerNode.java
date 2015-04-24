@@ -13,6 +13,7 @@
 
 package org.kie.navigator.view.content;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
@@ -23,7 +24,7 @@ import org.kie.navigator.view.server.IKieOrganization;
  */
 public class ServerNode extends ContainerNode {
 
-	List<IKieOrganization> organizations = null;
+	private List<IKieOrganization> organizations = null;
 	
 	/**
 	 * @param server
@@ -31,15 +32,21 @@ public class ServerNode extends ContainerNode {
 	 */
 	public ServerNode(IServer server, String name) {
 		super(server, name);
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
 	 */
 	@Override
-	protected List delegateGetChildren() {
-		return organizations;
+	protected List<? extends Object> delegateGetChildren() {
+		if (organizations!=null) {
+			List<OrganizationNode> result = new ArrayList<OrganizationNode>();
+			for (IKieOrganization org : organizations) {
+				result.add(new OrganizationNode(this,org));
+			}
+			return result;
+		}
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -47,7 +54,10 @@ public class ServerNode extends ContainerNode {
 	 */
 	@Override
 	protected void delegateClearChildren() {
-		organizations.clear();
+		if (organizations!=null) {
+			organizations.clear();
+			organizations = null;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -61,5 +71,13 @@ public class ServerNode extends ContainerNode {
 	@Override
 	public void dispose() {
 		super.dispose();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
+	 */
+	@Override
+	public boolean hasChildren() {
+		return getServer().getServerState() == IServer.STATE_STARTED;
 	}
 }

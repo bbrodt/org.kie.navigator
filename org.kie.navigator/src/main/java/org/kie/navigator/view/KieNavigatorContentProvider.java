@@ -30,10 +30,12 @@ import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerCore;
 import org.jboss.ide.eclipse.as.ui.Messages;
 import org.jboss.tools.as.wst.server.ui.xpl.ServerToolTip;
+import org.kie.navigator.KieNavigatorContentRoot;
 import org.kie.navigator.view.content.IContainerNode;
 import org.kie.navigator.view.content.IContentNode;
 import org.kie.navigator.view.content.ServerNode;
 import org.kie.navigator.view.server.KieService;
+import org.kie.navigator.view.server.ServerProxy;
 
 /**
  * ServerContentTreeContentProvider
@@ -131,27 +133,42 @@ public class KieNavigatorContentProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
-    	if (parentElement instanceof IWorkspaceRoot) {
-    		List<Object> results = new ArrayList<Object>();
+		List<Object> results = new ArrayList<Object>();
+    	if (parentElement instanceof KieNavigatorContentRoot) {
     		for (IServer s : ServerCore.getServers()) {
-    			if (KieService.isSupportedServer(s))
-    				results.add(new ServerNode(s, s.getName()));
+    			if (KieService.isSupportedServer(s)) {
+    				s = new ServerProxy(s);
+    				IContentNode<ServerNode> node = new ServerNode(s, s.getName());
+    				// not strictly necessary at this level,
+    				// see comment below.
+    				results.add(node.resolveContent());
+    			}
     		}
-    		return results.toArray();
         } else if (parentElement instanceof IContainerNode) {
             IContainerNode<?> container = (IContainerNode<?>) parentElement;
             if (pendingUpdates.containsKey(container)) {
                 return new Object[] {PENDING };
             }
-            List<? extends IContentNode<?>> children = container.getChildren();
+            List<? extends Object> children = container.getChildren();
             if (children == null) {
                 pendingUpdates.putIfAbsent(container, PENDING);
                 loadElementJob.schedule();
                 return new Object[] {PENDING };
             }
-            return children.toArray();
+            for (Object node : children) {
+            	if (node instanceof IContentNode) {
+            		// Resolve the content of this node: this may or
+            		// may not be the node itself. This is currently
+            		// used only by IProjectNode, which may return
+            		// the workspace IProject itself. From the IProject
+            		// level down, we will delegate to the Project View
+            		// for node content and labels.
+            		node = ((IContentNode)node).resolveContent();
+            	}
+            	results.add(node);
+            }
         }
-        return new Object[0];
+        return results.toArray();
     }
 
     public Object getParent(Object element) {
@@ -169,7 +186,7 @@ public class KieNavigatorContentProvider implements ITreeContentProvider {
         if (element instanceof IServer) {
             return true;
         } else if (element instanceof IContainerNode) {
-            return true;
+            return ((IContainerNode)element).hasChildren();
         }
         return false;
     }

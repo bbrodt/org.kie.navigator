@@ -25,7 +25,7 @@ public interface IContainerNode<T extends IContainerNode<?>> extends IContentNod
     /**
      * @return the children of this container.
      */
-    public List<? extends IContentNode<?>> getChildren();
+    public List<? extends Object> getChildren();
 
     /**
      * Loads the content of this container. This method is invoked by the
@@ -39,5 +39,14 @@ public interface IContainerNode<T extends IContainerNode<?>> extends IContentNod
      * refresh is requested.
      */
     public void clearChildren();
+    
+    /**
+     * Check if a node has child nodes. This may be false if the node itself has
+     * not been resolved, e.g. a RepositoryNode has not been resolved to a cloned
+     * local repository, or a ProjectNode has not resolved to a workspace IProject
+     * 
+     * @return true if this node has children
+     */
+    public boolean hasChildren();
 
 }

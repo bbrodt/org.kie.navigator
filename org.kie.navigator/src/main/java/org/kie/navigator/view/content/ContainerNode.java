@@ -36,7 +36,7 @@ public abstract class ContainerNode<T extends IContainerNode<?>> extends Content
         super(container, name);
     }
 
-    public final List<? extends IContentNode<?>> getChildren() {
+    public final List<? extends Object> getChildren() {
         if (error != null) {
             return Collections.singletonList(error);
         }
@@ -72,7 +72,7 @@ public abstract class ContainerNode<T extends IContainerNode<?>> extends Content
         }
     }
 
-    protected abstract List<? extends IContentNode<?>> delegateGetChildren();
+    protected abstract List<? extends Object> delegateGetChildren();
 
     protected abstract void delegateClearChildren();
 

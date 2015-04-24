@@ -20,7 +20,7 @@ import org.eclipse.wst.server.core.IServer;
  */
 public abstract class KieServiceImpl implements IKieServiceImpl {
 
-	private IServer server;
+	protected IServer server;
 	
 	/**
 	 * @param server
@@ -33,6 +33,10 @@ public abstract class KieServiceImpl implements IKieServiceImpl {
 		this.server = server;
 	}
 
+	public IServer getServer() {
+		return server;
+	}
+	
 	protected String httpGet(String request) {
 		return "";
 	}

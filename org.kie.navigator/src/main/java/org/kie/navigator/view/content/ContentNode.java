@@ -81,4 +81,12 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
     	 }
     	 return service;
     }
+    
+    public boolean isResolved() {
+    	return true;
+    }
+    
+    public Object resolveContent() {
+    	return this;
+    }
 }

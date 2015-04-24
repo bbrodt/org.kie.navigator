@@ -13,14 +13,12 @@ package org.kie.navigator.view;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -39,6 +37,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.contexts.IContextService;
@@ -57,14 +56,9 @@ import org.eclipse.wst.server.core.IServerListener;
 import org.eclipse.wst.server.core.ServerCore;
 import org.eclipse.wst.server.core.ServerEvent;
 import org.eclipse.wst.server.core.ServerPort;
-import org.eclipse.wst.server.core.model.ServerBehaviourDelegate;
-import org.eclipse.wst.server.core.model.ServerDelegate;
-import org.jboss.dmr.ModelNode;
 import org.jboss.ide.eclipse.as.core.server.internal.JBossServer;
-import org.jboss.ide.eclipse.as.core.server.v7.management.AS7ManagementDetails;
 import org.jboss.ide.eclipse.as.core.util.ServerConverter;
-import org.jboss.ide.eclipse.as.management.core.IJBoss7ManagerService;
-import org.jboss.ide.eclipse.as.management.core.JBoss7ManagerUtil;
+import org.kie.navigator.KieNavigatorContentRoot;
 
 /**
  * A view of servers, their modules, and status.
@@ -91,6 +85,11 @@ public class KieNavigatorView extends CommonNavigator {
 	 */
 	public KieNavigatorView() {
 		super();
+	}
+	
+	@Override
+	protected Object getInitialInput() {
+		return new KieNavigatorContentRoot(this);
 	}
 
 	@Override

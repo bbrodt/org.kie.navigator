@@ -15,11 +15,13 @@ package org.kie.navigator.view.server;
 
 import java.util.List;
 
+import org.eclipse.wst.server.core.IServer;
+
 /**
  *
  */
 public interface IKieOrganization {
 	String getName();
 	List<IKieRepository> getRepositories();
-
+	IServer getServer();
 }

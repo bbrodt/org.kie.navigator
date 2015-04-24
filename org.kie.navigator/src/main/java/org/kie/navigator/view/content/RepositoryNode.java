@@ -13,28 +13,42 @@
 
 package org.kie.navigator.view.content;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.kie.navigator.view.server.IKieProject;
+import org.kie.navigator.view.server.IKieRepository;
 
 /**
  *
  */
 public class RepositoryNode extends ContainerNode<OrganizationNode> {
-
+	private final IKieRepository repository;
+	private List<IKieProject> projects;
+	
 	/**
 	 * @param container
 	 * @param name
 	 */
-	protected RepositoryNode(OrganizationNode container, String name) {
-		super(container, name);
-		// TODO Auto-generated constructor stub
+	protected RepositoryNode(OrganizationNode container, IKieRepository repository) {
+		super(container, repository.getName());
+		this.repository = repository;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
 	 */
 	@Override
-	protected List<? extends IContentNode<?>> delegateGetChildren() {
-		// TODO Auto-generated method stub
+	protected List<? extends Object> delegateGetChildren() {
+		if (projects!=null) {
+			List<ProjectNode> result = new ArrayList<ProjectNode>();
+			ProjectNode node;
+			for (IKieProject project : projects) {
+				node = new ProjectNode(this,project);
+				result.add(node);
+			}
+			return result;
+		}
 		return null;
 	}
 
@@ -43,8 +57,10 @@ public class RepositoryNode extends ContainerNode<OrganizationNode> {
 	 */
 	@Override
 	protected void delegateClearChildren() {
-		// TODO Auto-generated method stub
-		
+		if (projects!=null) {
+			projects.clear();
+			projects = null;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -52,8 +68,23 @@ public class RepositoryNode extends ContainerNode<OrganizationNode> {
 	 */
 	@Override
 	protected void delegateLoad() throws Exception {
-		// TODO Auto-generated method stub
-		
+		projects = getKieService().getProjects(repository);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+	}
+    
+    public boolean isResolved() {
+    	return repository.isResolved();
+    }
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
+	 */
+	@Override
+	public boolean hasChildren() {
+		return isResolved();
+	}
 }

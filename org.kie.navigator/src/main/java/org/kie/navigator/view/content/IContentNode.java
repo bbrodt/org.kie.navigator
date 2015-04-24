@@ -51,4 +51,10 @@ public interface IContentNode<T extends IContainerNode<?>> {
      * Frees any resources held by this node.
      */
     public void dispose();
+    
+    /**
+     * Returns the actual tree viewer content for this node
+     */
+    public Object resolveContent();
+
 }

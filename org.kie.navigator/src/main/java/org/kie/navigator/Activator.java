@@ -16,9 +16,14 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.kie.navigator"; //$NON-NLS-1$
 
-	public final static String IMG_SERVER_RUN = "server_run.gif";
-	public final static String IMG_SERVER_STOP = "server_stop.gif";
-
+	public final static String IMG_SERVER_STARTED = "server_started.gif";
+	public final static String IMG_SERVER_STOPPED = "server_stopped.gif";
+	public final static String IMG_ORGANIZATION = "organization.gif";
+	public final static String IMG_PROJECT = "project.gif";
+	public final static String IMG_PROJECT_CLOSED = "project_closed.gif";
+	public final static String IMG_REPOSITORY = "repository.gif";
+	public final static String IMG_REPOSITORY_UNAVAILABLE = "repository_unavailable.gif";
+	
 	// The shared instance
 	private static Activator plugin;
 	
@@ -58,8 +63,13 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
         super.initializeImageRegistry(reg);
-        reg.put(IMG_SERVER_RUN, loadImageDescriptor(IMG_SERVER_RUN));
-        reg.put(IMG_SERVER_STOP, loadImageDescriptor(IMG_SERVER_STOP));
+        reg.put(IMG_SERVER_STARTED, loadImageDescriptor(IMG_SERVER_STARTED));
+        reg.put(IMG_SERVER_STOPPED, loadImageDescriptor(IMG_SERVER_STOPPED));
+        reg.put(IMG_ORGANIZATION, loadImageDescriptor(IMG_ORGANIZATION));
+        reg.put(IMG_PROJECT, loadImageDescriptor(IMG_PROJECT));
+        reg.put(IMG_PROJECT_CLOSED, loadImageDescriptor(IMG_PROJECT_CLOSED));
+        reg.put(IMG_REPOSITORY, loadImageDescriptor(IMG_REPOSITORY));
+        reg.put(IMG_REPOSITORY_UNAVAILABLE, loadImageDescriptor(IMG_REPOSITORY_UNAVAILABLE));
 	}
 
     /**
