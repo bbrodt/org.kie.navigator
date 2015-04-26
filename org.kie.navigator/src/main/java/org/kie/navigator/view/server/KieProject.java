@@ -18,11 +18,8 @@ import org.eclipse.wst.server.core.IServer;
 /**
  *
  */
-public class KieProject implements IKieProject {
+public class KieProject extends KieResourceHandler implements IKieProject {
 
-	private final IKieRepository repository;
-	private final String name;
-	
 	// debug/test only
 	private boolean resolved;
 	private static boolean resolvedToggle;
@@ -32,36 +29,12 @@ public class KieProject implements IKieProject {
 	 * @param string
 	 */
 	public KieProject(IKieRepository repository, String name) {
-		this.repository = repository;
-		this.name = name;
+		super(repository, name);
 		resolvedToggle = resolved = !resolvedToggle;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.server.IKieProject#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.server.IKieProject#getServer()
-	 */
-	@Override
-	public IServer getServer() {
-		return repository.getServer();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.server.IKieProject#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return resolved;
-	}
-
-	public void setResolved(boolean resolved) {
-		this.resolved = resolved;
 	}
 }

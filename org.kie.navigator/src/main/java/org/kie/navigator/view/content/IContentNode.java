@@ -43,11 +43,6 @@ public interface IContentNode<T extends IContainerNode<?>> {
     public String getName();
 
     /**
-     * @return this node's addres, e.g. /subsystem=foo
-     */
-    public String getAddress();
-
-    /**
      * Frees any resources held by this node.
      */
     public void dispose();

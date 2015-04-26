@@ -20,10 +20,7 @@ import org.eclipse.wst.server.core.IServer;
 /**
  *
  */
-public interface IKieRepository {
-	String getName();
-	boolean isResolved();
-	List<IKieProject> getProjects();
-	IServer getServer();
+public interface IKieRepository extends IKieResourceHandler {
+	List<IKieProject> getProjects() throws Exception;
 
 }

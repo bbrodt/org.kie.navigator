@@ -11,7 +11,7 @@
 package org.kie.navigator.view.content;
 
 import org.eclipse.wst.server.core.IServer;
-import org.kie.navigator.view.server.KieService;
+import org.kie.navigator.view.server.KieServer;
 
 /**
  * ContentNode
@@ -26,11 +26,14 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
     /** The path separator for addresses. */
     public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
 
-    private final IServer server;
-    private KieService service;
-    private IContainerNode parent;
-    private T container;
-    private final String name;
+    protected final IServer server;
+    /*
+     * TODO: handler should be a generic IKieResourceHandler
+     */
+    protected KieServer handler;
+    protected IContainerNode parent;
+    protected T container;
+    protected final String name;
 
     protected ContentNode(IServer server, String name) {
         this.server = server;
@@ -58,10 +61,6 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
         return name;
     }
 
-    public String getAddress() {
-        return getParent().getAddress() + PATH_SEPARATOR + getName();
-    }
-
     public IServer getServer() {
         return server;
     }
@@ -69,17 +68,18 @@ public class ContentNode<T extends IContainerNode<?>> implements IContentNode<T>
     public void dispose() {
         container = null;
         parent = null;
-        if (service!=null) {
-        	service.dispose();
-        	service = null;
+        if (handler!=null) {
+        	handler.dispose();
+        	handler = null;
         }
     }
 
-    protected KieService getKieService() {
-    	 if (service==null) {
-    		 service = new KieService(server);
-    	 }
-    	 return service;
+    /**
+     * TODO: handler should be a generic IKieResourceHandler
+     * @return
+     */
+    protected KieServer getHandler() {
+    	 return handler;
     }
     
     public boolean isResolved() {

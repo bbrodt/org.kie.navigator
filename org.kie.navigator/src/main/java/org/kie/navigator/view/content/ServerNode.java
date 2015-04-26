@@ -18,14 +18,15 @@ import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
 import org.kie.navigator.view.server.IKieOrganization;
+import org.kie.navigator.view.server.IKieResourceHandler;
+import org.kie.navigator.view.server.KieServer;
 
 /**
  *
  */
 public class ServerNode extends ContainerNode {
+	protected List<? extends IKieResourceHandler> childrenHandlers = null;
 
-	private List<IKieOrganization> organizations = null;
-	
 	/**
 	 * @param server
 	 * @param name
@@ -39,10 +40,11 @@ public class ServerNode extends ContainerNode {
 	 */
 	@Override
 	protected List<? extends Object> delegateGetChildren() {
-		if (organizations!=null) {
+		if (childrenHandlers!=null) {
 			List<OrganizationNode> result = new ArrayList<OrganizationNode>();
-			for (IKieOrganization org : organizations) {
-				result.add(new OrganizationNode(this,org));
+			for (IKieResourceHandler h : childrenHandlers) {
+				if (h instanceof IKieOrganization)
+					result.add(new OrganizationNode(this,(IKieOrganization)h));
 			}
 			return result;
 		}
@@ -54,9 +56,9 @@ public class ServerNode extends ContainerNode {
 	 */
 	@Override
 	protected void delegateClearChildren() {
-		if (organizations!=null) {
-			organizations.clear();
-			organizations = null;
+		if (childrenHandlers!=null) {
+			childrenHandlers.clear();
+			childrenHandlers = null;
 		}
 	}
 
@@ -65,13 +67,20 @@ public class ServerNode extends ContainerNode {
 	 */
 	@Override
 	protected void delegateLoad() throws Exception {
-		organizations = getKieService().getOrganizations();
+		childrenHandlers = getHandler().getChildren();
 	}
 
 	@Override
 	public void dispose() {
 		super.dispose();
 	}
+
+    protected KieServer getHandler() {
+    	 if (handler==null) {
+    		 handler = new KieServer(server);
+    	 }
+    	 return handler;
+    }
 
 	/* (non-Javadoc)
 	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()

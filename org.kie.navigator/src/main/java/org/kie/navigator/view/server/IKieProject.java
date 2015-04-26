@@ -13,20 +13,10 @@
 
 package org.kie.navigator.view.server;
 
-import java.util.List;
-
 import org.eclipse.wst.server.core.IServer;
 
 /**
  *
  */
-public interface IKieProject {
-
-	/**
-	 * @return
-	 */
-	String getName();
-	boolean isResolved();
-	IServer getServer();
-
+public interface IKieProject extends IKieResourceHandler {
 }

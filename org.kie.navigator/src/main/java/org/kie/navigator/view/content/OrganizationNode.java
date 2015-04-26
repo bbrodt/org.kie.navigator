@@ -66,7 +66,7 @@ public class OrganizationNode extends ContainerNode<ServerNode> {
 	 */
 	@Override
 	protected void delegateLoad() throws Exception {
-		repositories = getKieService().getRepositories(organization);
+		repositories = getHandler().getRepositories(organization);
 	}
 
 	@Override

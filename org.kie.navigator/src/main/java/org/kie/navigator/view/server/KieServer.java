@@ -25,32 +25,33 @@ import org.kie.navigator.Activator;
 /**
  *
  */
-public class KieService implements IKieService {
+public class KieServer extends KieResourceHandler implements IKieServer {
 
     private final IServer server;
-	private IKieServiceImpl delegate;
+	private IKieServiceDelegate delegate;
 	
 	/**
 	 * 
 	 */
-	public KieService(IServer server) {
+	public KieServer(IServer server) {
+		super(null,server.getName());
 		this.server = server;
 	}
 
 	public void dispose() {
 	}
 	
-	public IKieServiceImpl getDelegate() {
+	public IKieServiceDelegate getDelegate() {
 		if (delegate==null)
 			delegate = loadDelegate();
 		return delegate;
 	}
 	
-	protected IKieServiceImpl loadDelegate() {
-		IKieServiceImpl result = null;
+	protected IKieServiceDelegate loadDelegate() {
+		IKieServiceDelegate result = null;
 		try {
 			IConfigurationElement[] config = Platform.getExtensionRegistry()
-					.getConfigurationElementsFor(IKieServiceImpl.KIE_SERVICE_IMPL_ID);
+					.getConfigurationElementsFor(IKieServiceDelegate.KIE_SERVICE_IMPL_ID);
 			for (IConfigurationElement e : config) {
 				if ("containerBinding".equals(e.getName())) {
 					String serverId = e.getAttribute("serverId");
@@ -58,8 +59,8 @@ public class KieService implements IKieService {
 						String kieVersion = e.getAttribute("kieVersion");
 						if ( getDeployedKieVersion().equals(kieVersion) ) {
 							Object o = e.createExecutableExtension("class");
-							if (o instanceof IKieServiceImpl) {
-								result = (IKieServiceImpl)o;
+							if (o instanceof IKieServiceDelegate) {
+								result = (IKieServiceDelegate)o;
 								result.setServer(server);
 								return result;
 							}
@@ -76,7 +77,7 @@ public class KieService implements IKieService {
 	
 	public static boolean isSupportedServer(IServer server) {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor(IKieServiceImpl.KIE_SERVICE_IMPL_ID);
+				.getConfigurationElementsFor(IKieServiceDelegate.KIE_SERVICE_IMPL_ID);
 		for (IConfigurationElement e : config) {
 			if ("containerBinding".equals(e.getName())) {
 				String serverId = e.getAttribute("serverId");
@@ -133,7 +134,7 @@ public class KieService implements IKieService {
 //			}
 //		}
 //		return result;
-		return getDelegate().getOrganizations();
+		return getDelegate().getOrganizations(this);
 	}
 
 	/* (non-Javadoc)
@@ -152,6 +153,10 @@ public class KieService implements IKieService {
 		return getDelegate().getProjects(repository);
 	}
 
+	public List<? extends IKieResourceHandler> getChildren() throws Exception {
+		return getDelegate().getOrganizations(this);
+	}
+	
 	protected boolean isServerRunning() {
 		return server.getServerState() == IServer.STATE_STARTED;
 	}
@@ -170,5 +175,9 @@ public class KieService implements IKieService {
 	
 	protected String getKieProjectsPreferenceKey() {
 		return server.getId()+"/projects";
+	}
+	
+	public boolean isResolved() {
+		return isServerRunning();
 	}
 }

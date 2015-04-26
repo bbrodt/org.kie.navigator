@@ -34,7 +34,7 @@ import org.kie.navigator.KieNavigatorContentRoot;
 import org.kie.navigator.view.content.IContainerNode;
 import org.kie.navigator.view.content.IContentNode;
 import org.kie.navigator.view.content.ServerNode;
-import org.kie.navigator.view.server.KieService;
+import org.kie.navigator.view.server.KieServer;
 import org.kie.navigator.view.server.ServerProxy;
 
 /**
@@ -136,9 +136,9 @@ public class KieNavigatorContentProvider implements ITreeContentProvider {
 		List<Object> results = new ArrayList<Object>();
     	if (parentElement instanceof KieNavigatorContentRoot) {
     		for (IServer s : ServerCore.getServers()) {
-    			if (KieService.isSupportedServer(s)) {
+    			if (KieServer.isSupportedServer(s)) {
     				s = new ServerProxy(s);
-    				IContentNode<ServerNode> node = new ServerNode(s, s.getName());
+    				IContainerNode<ServerNode> node = new ServerNode(s, s.getName());
     				// not strictly necessary at this level,
     				// see comment below.
     				results.add(node.resolveContent());

@@ -14,31 +14,33 @@
 package org.kie.navigator.view.server.jbpm60;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.IKieProject;
 import org.kie.navigator.view.server.IKieRepository;
+import org.kie.navigator.view.server.IKieServer;
 import org.kie.navigator.view.server.KieOrganization;
 import org.kie.navigator.view.server.KieProject;
 import org.kie.navigator.view.server.KieRepository;
-import org.kie.navigator.view.server.KieServiceImpl;
+import org.kie.navigator.view.server.KieServiceDelegate;
 
-import com.eclipsesource.json.*;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 /**
  *
  */
-public class Kie60ServiceImpl extends KieServiceImpl {
+public class Kie60Service extends KieServiceDelegate {
 
 	private final static String KIE_VERSION = "org.jboss.kie.60";
 	
 	/**
 	 *
 	 */
-	public Kie60ServiceImpl() {
+	public Kie60Service() {
 	}
 
 	String getVersion() {
@@ -49,16 +51,16 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 	 * @see org.kie.navigator.view.server.IKieServiceImpl#getOrganizations()
 	 */
 	@Override
-	public List<IKieOrganization> getOrganizations()  throws IOException {
+	public List<IKieOrganization> getOrganizations(IKieServer service)  throws IOException {
 		List<IKieOrganization> result = new ArrayList<IKieOrganization>();
-		result.add(new KieOrganization(getServer(), "Organization 1"));
-		result.add(new KieOrganization(getServer(), "Organization 2"));
+		result.add(new KieOrganization(service, "Organization 1"));
+		result.add(new KieOrganization(service, "Organization 2"));
 		
 		String response = httpGet("organizationalunits");
 		JsonArray ja = JsonArray.readFrom(response);
 		for (int i=0; i<ja.size(); ++i) {
 			JsonObject jo = ja.get(i).asObject();
-			result.add(new KieOrganization(getServer(), jo.get("name").asString()));
+			result.add(new KieOrganization(service, jo.get("name").asString()));
 		}
 		
 		return result;
@@ -82,7 +84,6 @@ public class Kie60ServiceImpl extends KieServiceImpl {
 				for (int j=0; j<jar.size(); ++j) {
 					JsonValue jv = jar.get(j);
 					KieRepository kr = new KieRepository(organization, jv.asString());
-					kr.setResolved(true);
 					result.add(kr);
 				}
 			}

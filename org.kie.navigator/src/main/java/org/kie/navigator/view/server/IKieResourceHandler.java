@@ -13,15 +13,17 @@
 
 package org.kie.navigator.view.server;
 
-import java.io.IOException;
 import java.util.List;
+
+import org.eclipse.wst.server.core.IServer;
 
 /**
  *
  */
-public interface IKieService {
-
-	List<IKieOrganization> getOrganizations() throws IOException;
-	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
-	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
+public interface IKieResourceHandler {
+	String getName();
+	IServer getServer();
+	void dispose();
+	IKieServiceDelegate getDelegate();
+	boolean isResolved();
 }

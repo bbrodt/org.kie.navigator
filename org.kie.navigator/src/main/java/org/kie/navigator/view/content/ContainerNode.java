@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
+import org.kie.navigator.view.server.IKieOrganization;
 
 /**
  * ContainerNode

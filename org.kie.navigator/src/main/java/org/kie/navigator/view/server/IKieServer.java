@@ -16,31 +16,12 @@ package org.kie.navigator.view.server;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.wst.server.core.IServer;
-
 /**
  *
  */
-public interface IKieServiceImpl {
+public interface IKieServer extends IKieResourceHandler {
 
-	public final static String KIE_SERVICE_IMPL_ID = "org.kie.navigator.serviceImpl";
-
-	/**
-	 * @param server
-	 */
-	void setServer(IServer server);
-
-	/**
-	 * @return server
-	 */
-	IServer getServer();
-	
-	/**
-	 * @return
-	 */
 	List<IKieOrganization> getOrganizations() throws IOException;
-
 	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
-	
 	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
 }

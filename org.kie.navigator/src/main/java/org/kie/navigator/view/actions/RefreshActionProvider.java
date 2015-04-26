@@ -20,7 +20,7 @@ import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IServer;
 import org.kie.navigator.view.content.IContainerNode;
-import org.kie.navigator.view.server.KieService;
+import org.kie.navigator.view.server.KieServer;
 
 /**
  * RefreshActionProvider
@@ -73,7 +73,7 @@ public class RefreshActionProvider extends CommonActionProvider {
             IServer server = container.getServer();
             System.out.println("Server ID="+server.getId()+"  Type="+server.getServerType().getId()+"  Runtime Type="+server.getServerType().getRuntimeType().getId());
             
-            KieService ks = new KieService(server);
+            KieServer ks = new KieServer(server);
             ks.getDelegate();
             
             for (IModule m : server.getModules()) {

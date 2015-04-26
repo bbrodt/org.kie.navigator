@@ -128,12 +128,12 @@
 		name="Wildfly 8.x"
 		point="org.kie.navigator.serviceImpl">
 		<containerBinding
-			class="org.kie.navigator.view.server.jbpm60.Kie60ServiceImpl"
+			class="org.kie.navigator.view.server.jbpm60.Kie60Service"
 			kieVersion="org.jboss.kie.60"
 			serverId="org.jboss.ide.eclipse.as.wildfly.80">
 		</containerBinding>
 		<containerBinding
-			class="org.kie.navigator.view.server.jbpm60.Kie60ServiceImpl"
+			class="org.kie.navigator.view.server.jbpm60.Kie60Service"
 			kieVersion="org.jboss.kie.60"
 			serverId="org.jboss.ide.eclipse.as.71">
 		</containerBinding>

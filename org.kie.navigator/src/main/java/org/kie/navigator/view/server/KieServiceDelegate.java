@@ -24,14 +24,14 @@ import org.eclipse.wst.server.core.IServer;
 /**
  *
  */
-public abstract class KieServiceImpl implements IKieServiceImpl {
+public abstract class KieServiceDelegate implements IKieServiceDelegate {
 
 	protected IServer server;
 	
 	/**
 	 * @param server
 	 */
-	public KieServiceImpl() {
+	public KieServiceDelegate() {
 		
 	}
 	
