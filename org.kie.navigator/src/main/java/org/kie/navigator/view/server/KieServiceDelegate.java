@@ -67,11 +67,11 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 		
 	}
 	
-	protected String getUsername() {
+	public String getUsername() {
 		return "admin";
 	}
 	
-	protected String getPassword() {
+	public String getPassword() {
 		return "admin";
 	}
 	

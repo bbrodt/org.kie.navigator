@@ -132,19 +132,70 @@ public class KieNavigatorContentProvider implements ITreeContentProvider {
         return getChildren(inputElement);
     }
 
+    List<ServerNode> rootElements;
+    
     public Object[] getChildren(Object parentElement) {
 		List<Object> results = new ArrayList<Object>();
     	if (parentElement instanceof KieNavigatorContentRoot) {
-    		for (IServer s : ServerCore.getServers()) {
-    			if (KieServer.isSupportedServer(s)) {
-    				s = new ServerProxy(s);
-    				IContainerNode<ServerNode> node = new ServerNode(s, s.getName());
-    				// not strictly necessary at this level,
-    				// see comment below.
-    				results.add(node.resolveContent());
-    			}
-    		}
-        } else if (parentElement instanceof IContainerNode) {
+    		List<? extends Object> children = ((KieNavigatorContentRoot)parentElement).getChildren();
+    		results.addAll(children);
+//    		if (rootElements==null) {
+//    			rootElements = new ArrayList<ServerNode>();
+//	    		for (IServer s : ServerCore.getServers()) {
+//	    			if (KieServer.isSupportedServer(s)) {
+//	    				s = new ServerProxy(s);
+//	    				ServerNode node = new ServerNode(s);
+//	    				rootElements.add(node);
+//	    				// not strictly necessary at this level,
+//	    				// see comment below.
+//	    				results.add(node.resolveContent());
+//	    			}
+//	    		}
+//    		}
+//    		else {
+//	    		for (IServer s : ServerCore.getServers()) {
+//	    			if (KieServer.isSupportedServer(s)) {
+//	    				boolean found = false;
+//	    				for (ServerNode n : rootElements) {
+//	    					if (n.getServer().getId().equals(s.getId())) {
+//	    						found = true;
+//	    						break;
+//	    					}
+//	    				}
+//	    				if (!found) {
+//	    					// found a new server
+//		    				s = new ServerProxy(s);
+//		    				ServerNode node = new ServerNode(s);
+//		    				rootElements.add(node);
+//	    				}
+//	    			}
+//	    		}
+//	    		List<ServerNode> removed = new ArrayList<ServerNode>();
+//	    		for (ServerNode n : rootElements) {
+//	    			if (KieServer.isSupportedServer(n.getServer())) {
+//						boolean found = false;
+//			    		for (IServer s : ServerCore.getServers()) {
+//			    			if (KieServer.isSupportedServer(s)) {
+//		    					if (n.getServer().getId().equals(s.getId())) {
+//		    						found = true;
+//		    						break;
+//		    					}
+//			    			}
+//			    		}
+//			    		if (!found)
+//			    			removed.add(n);
+//	    			}
+//	    		}
+//	    		for (ServerNode n : removed) {
+//	    			n.dispose();
+//	    		}
+//	    		rootElements.removeAll(removed);
+//	    		for (ServerNode n : rootElements) {
+//	    			results.add(n.resolveContent());
+//	    		}
+//    		}
+        } else
+        if (parentElement instanceof IContainerNode) {
             IContainerNode<?> container = (IContainerNode<?>) parentElement;
             if (pendingUpdates.containsKey(container)) {
                 return new Object[] {PENDING };

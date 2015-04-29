@@ -14,71 +14,53 @@
 package org.kie.navigator.view.content;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.IKieRepository;
+import org.kie.navigator.view.server.IKieResourceHandler;
 
 /**
  *
  */
 public class OrganizationNode extends ContainerNode<ServerNode> {
-	private final IKieOrganization organization;
-	private List<IKieRepository> repositories = null;
 	
 	/**
 	 * @param container
 	 * @param name
 	 */
 	protected OrganizationNode(ServerNode container, IKieOrganization organization) {
-		super(container, organization.getName());
-		this.organization = organization;
+		super(container, organization);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
-	 */
-	@Override
-	protected List<? extends Object> delegateGetChildren() {
-		if (repositories!=null) {
-			List<RepositoryNode> result = new ArrayList<RepositoryNode>();
-			for (IKieRepository repo : repositories) {
-				result.add(new RepositoryNode(this,repo));
-			}
-			return result;
+	
+	protected List<? extends IContentNode<?>> createChildren() {
+		List<RepositoryNode> children = new ArrayList<RepositoryNode>();
+		Iterator<? extends IKieResourceHandler> iter = handlerChildren.iterator();
+		while (iter.hasNext()) {
+			IKieResourceHandler h = iter.next();
+			if (h instanceof IKieRepository)
+				children.add(new RepositoryNode(this,(IKieRepository)h));
 		}
-		return null;
+		return children;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateClearChildren()
-	 */
+	
 	@Override
-	protected void delegateClearChildren() {
-		if (repositories!=null) {
-			repositories.clear();
-			repositories = null;
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateLoad()
-	 */
-	@Override
-	protected void delegateLoad() throws Exception {
-		repositories = getHandler().getRepositories(organization);
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
-	 */
-	@Override
-	public boolean hasChildren() {
+	public boolean isResolved() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.content.ContentNode#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		try {
+			OrganizationNode other = (OrganizationNode) obj;
+			return this.getName().equals(other.getName());
+		}
+		catch (Exception ex) {
+		}
+		return false;
 	}
 }

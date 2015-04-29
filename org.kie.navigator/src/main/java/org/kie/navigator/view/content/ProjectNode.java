@@ -24,70 +24,42 @@ import org.kie.navigator.view.server.IKieProject;
  */
 public class ProjectNode extends ContainerNode<RepositoryNode> {
 	
-	private final IKieProject kieProject;
-
 	/**
 	 * @param container
 	 * @param name
 	 */
 	protected ProjectNode(RepositoryNode container, IKieProject project) {
-		super(container, project.getName());
-		this.kieProject = project;
+		super(container, project);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
+	 * @see org.kie.navigator.view.content.ContainerNode#createChildren()
 	 */
 	@Override
-	protected List<? extends Object> delegateGetChildren() {
+	protected List<? extends IContentNode<?>> createChildren() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateClearChildren()
-	 */
-	@Override
-	protected void delegateClearChildren() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateLoad()
-	 */
-	@Override
-	protected void delegateLoad() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
 	public Object resolveContent() {
-		// test code to see if Project View works
-		if (kieProject.isResolved()) {
-			IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-			if (projects.length>0) {
-				return projects[0];
-			}
-		}
+		Object resource = getHandler().load();
+		if (resource!=null)
+			return resource;
 		return super.resolveContent();
 	}
 
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
-	public boolean isResolved() {
-		return kieProject.isResolved();
-	}
-	
 	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
+	 * @see org.kie.navigator.view.content.ContentNode#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean hasChildren() {
-		return isResolved();
+	public boolean equals(Object obj) {
+		try {
+			ProjectNode other = (ProjectNode) obj;
+			return other.getName().equals(this.getName());
+		}
+		catch (Exception ex) {
+		}
+		return false;
 	}
 }

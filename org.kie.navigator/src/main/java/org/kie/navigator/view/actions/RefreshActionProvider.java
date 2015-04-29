@@ -69,16 +69,6 @@ public class RefreshActionProvider extends CommonActionProvider {
             IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
             container.clearChildren();
             RefreshActionProvider.this.getActionSite().getStructuredViewer().refresh(container);
-            
-            IServer server = container.getServer();
-            System.out.println("Server ID="+server.getId()+"  Type="+server.getServerType().getId()+"  Runtime Type="+server.getServerType().getRuntimeType().getId());
-            
-            KieServer ks = new KieServer(server);
-            ks.getDelegate();
-            
-            for (IModule m : server.getModules()) {
-            	System.out.println(m.getName());
-            }
         }
 
     }

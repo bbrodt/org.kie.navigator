@@ -12,14 +12,6 @@ package org.kie.navigator.view.content;
 
 import org.eclipse.wst.server.core.IServer;
 
-/**
- * IContentNode
- * 
- * <p/>
- * Base type for server content.
- * 
- * @author Rob Cernich
- */
 public interface IContentNode<T extends IContainerNode<?>> {
 
     /**

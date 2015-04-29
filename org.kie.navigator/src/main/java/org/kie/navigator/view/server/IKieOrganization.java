@@ -21,5 +21,4 @@ import org.eclipse.wst.server.core.IServer;
  *
  */
 public interface IKieOrganization extends IKieResourceHandler {
-	List<IKieRepository> getRepositories() throws Exception;
 }

@@ -10,6 +10,11 @@
  ******************************************************************************/ 
 package org.kie.navigator.view.content;
 
+import java.util.List;
+
+import org.kie.navigator.view.server.IKieResourceHandler;
+import org.kie.navigator.view.server.KieResourceHandler;
+
 /**
  * ErrorNode
  * 
@@ -22,15 +27,35 @@ package org.kie.navigator.view.content;
 public class ErrorNode extends ContentNode<IContainerNode<?>> implements IErrorNode {
 
     public static final String ERROR_TYPE = "error"; //$NON-NLS-1$
-
     private final String text;
+    private final static class ErrorHandler extends KieResourceHandler {
+    	public ErrorHandler() {
+    		super(null,"Error");
+    	}
 
+		/* (non-Javadoc)
+		 * @see org.kie.navigator.view.server.IKieResourceHandler#getChildren()
+		 */
+		@Override
+		public List<? extends IKieResourceHandler> getChildren() throws Exception {
+			return null;
+		}
+    }
+    
     protected ErrorNode(IContainerNode<?> container, String text) {
-        super(container, ERROR_TYPE);
+        super(container, new ErrorHandler());
         this.text = text;
     }
 
     public String getText() {
         return text;
     }
+
+	/* (non-Javadoc)
+	 * @see org.kie.navigator.view.content.ContentNode#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		return false;
+	}
 }

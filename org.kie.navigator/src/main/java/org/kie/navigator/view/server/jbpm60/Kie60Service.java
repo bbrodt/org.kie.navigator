@@ -13,10 +13,12 @@
 
 package org.kie.navigator.view.server.jbpm60;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jgit.lib.Repository;
 import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.IKieProject;
 import org.kie.navigator.view.server.IKieRepository;
@@ -53,8 +55,6 @@ public class Kie60Service extends KieServiceDelegate {
 	@Override
 	public List<IKieOrganization> getOrganizations(IKieServer service)  throws IOException {
 		List<IKieOrganization> result = new ArrayList<IKieOrganization>();
-		result.add(new KieOrganization(service, "Organization 1"));
-		result.add(new KieOrganization(service, "Organization 2"));
 		
 		String response = httpGet("organizationalunits");
 		JsonArray ja = JsonArray.readFrom(response);
@@ -72,8 +72,6 @@ public class Kie60Service extends KieServiceDelegate {
 	@Override
 	public List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException {
 		List<IKieRepository> result = new ArrayList<IKieRepository>();
-		result.add(new KieRepository(organization, "Repository 1"));
-		result.add(new KieRepository(organization, "Repository 2"));
 
 		String response = httpGet("organizationalunits");
 		JsonArray ja = JsonArray.readFrom(response);
@@ -97,9 +95,21 @@ public class Kie60Service extends KieServiceDelegate {
 	@Override
 	public List<IKieProject> getProjects(IKieRepository repository) throws IOException {
 		List<IKieProject> result = new ArrayList<IKieProject>();
-		if (repository.isResolved()) {
-			result.add(new KieProject(repository, "Project 1"));
-			result.add(new KieProject(repository, "Project 2"));
+		Object o = repository.load();
+		if (o instanceof Repository) {
+			Repository git = (Repository) o;
+			try {
+				String gitDir = git.getWorkTree().getAbsolutePath();
+				for (String f : git.getWorkTree().list()) {
+					File file = new File(gitDir + File.separator + f);
+					if (file.isDirectory() && !file.getName().startsWith(".")) {
+						result.add(new KieProject(repository, file.getName()));
+					}
+				}
+			}
+			finally {
+				git.close();
+			}
 		}
 		return result;
 	}

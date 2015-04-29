@@ -13,16 +13,19 @@
 
 package org.kie.navigator.view.server;
 
-import org.eclipse.wst.server.core.IServer;
+import java.util.List;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.egit.core.RepositoryCache;
+import org.eclipse.jgit.lib.Repository;
 
 /**
  *
  */
 public class KieProject extends KieResourceHandler implements IKieProject {
 
-	// debug/test only
-	private boolean resolved;
-	private static boolean resolvedToggle;
+	IProject project;
 	
 	/**
 	 * @param repository
@@ -30,11 +33,34 @@ public class KieProject extends KieResourceHandler implements IKieProject {
 	 */
 	public KieProject(IKieRepository repository, String name) {
 		super(repository, name);
-		resolvedToggle = resolved = !resolvedToggle;
 	}
-
+	
+	public Object load() {
+		if (project==null) {
+			Repository repository = (Repository) parent.load();
+			if (repository!=null) {
+				RepositoryCache repositoryCache = org.eclipse.egit.core.Activator.getDefault().getRepositoryCache();
+				
+				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+					if (project.getName().equals(name)) {
+						Repository projectRepo = repositoryCache.getRepository(project);
+						if (repository==projectRepo) {
+							this.project = project;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return project;
+	}
+	
 	@Override
-	public boolean isResolved() {
-		return resolved;
+	public boolean isLoaded() {
+		return project!=null;
+	}
+	
+	public List<? extends IKieResourceHandler> getChildren() throws Exception {
+		return null;
 	}
 }

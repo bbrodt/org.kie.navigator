@@ -13,11 +13,7 @@
 
 package org.kie.navigator.view.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.wst.server.core.IServer;
 
 /**
  *
@@ -31,7 +27,11 @@ public class KieOrganization extends KieResourceHandler implements IKieOrganizat
 		super(service, name);
 	}
 	
-	public List<IKieRepository> getRepositories() throws Exception {
+	public List<? extends IKieResourceHandler> getChildren() throws Exception {
 		return getDelegate().getRepositories(this);
+	}
+	
+	public boolean isLoaded() {
+		return true;
 	}
 }

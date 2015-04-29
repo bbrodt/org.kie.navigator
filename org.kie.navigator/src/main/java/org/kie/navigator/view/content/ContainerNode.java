@@ -10,43 +10,56 @@
  ******************************************************************************/ 
 package org.kie.navigator.view.content;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
-import org.kie.navigator.view.server.IKieOrganization;
+import org.kie.navigator.view.server.IKieProject;
+import org.kie.navigator.view.server.IKieResourceHandler;
 
-/**
- * ContainerNode
- * 
- * <p>
- * Abstract implementation of a container node. Delegates loading and takes care
- * of error handling.
- * 
- * @author Rob Cernich
- */
 public abstract class ContainerNode<T extends IContainerNode<?>> extends ContentNode<T> implements IContainerNode<T> {
 
     private IErrorNode error;
+	protected List<? extends IKieResourceHandler> handlerChildren;
+	protected List<? extends IContentNode<?>> children;
 
-    protected ContainerNode(IServer server, String name) {
-        super(server, name);
+    protected ContainerNode(IServer server) {
+        super(server);
     }
 
-    protected ContainerNode(T container, String name) {
-        super(container, name);
+    protected ContainerNode(T container, IKieResourceHandler handler) {
+        super(container, handler);
     }
+    
+	public boolean hasChildren() {
+		return isResolved();
+	}
 
-    public final List<? extends Object> getChildren() {
+    public List<? extends Object> getChildren() {
         if (error != null) {
             return Collections.singletonList(error);
         }
-        return delegateGetChildren();
+		if (handlerChildren!=null) {
+			updateChildren(createChildren());
+			return children;
+		}
+		return null;
     }
 
+    protected abstract List<? extends IContentNode<?>> createChildren();
+    
     public final void clearChildren() {
         clearError();
-        delegateClearChildren();
+		if (handlerChildren!=null) {
+			handlerChildren.clear();
+			handlerChildren = null;
+		}
+		if (children!=null) {
+			children.clear();
+			children = null;
+		}
     }
 
     protected void setError(IErrorNode error) {
@@ -66,18 +79,55 @@ public abstract class ContainerNode<T extends IContainerNode<?>> extends Content
             return;
         }
         try {
-            delegateLoad();
+    		handlerChildren = (List<IKieProject>) getHandler().getChildren();
             clearError();
         } catch (Exception e) {
             setError(new ErrorNode(this, "Loading error"));
         }
     }
 
-    protected abstract List<? extends Object> delegateGetChildren();
+	protected void updateChildren(List<? extends IContentNode<?>> newChildren) {
+		if (children==null)
+			children = newChildren;
+		else {
+			List<IContentNode<?>> removed = new ArrayList<IContentNode<?>>();
+			Iterator<? extends IContentNode<?>> newIter = newChildren.iterator();
+			while (newIter.hasNext()) {
+				IContentNode<?> newChild = newIter.next();
+				boolean found = false;
+				Iterator<? extends IContentNode<?>> oldIter = children.iterator();
+				while (oldIter.hasNext()) {
+					IContentNode<?> oldChild = oldIter.next();
+					if (oldChild.equals(newChild)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					((List<IContentNode<?>>)children).add(newChild);
+				}
+			}
 
-    protected abstract void delegateClearChildren();
-
-    protected abstract void delegateLoad() throws Exception;
+			Iterator<? extends IContentNode> oldIter = children.iterator();
+			while (oldIter.hasNext()) {
+				IContentNode oldChild = oldIter.next();
+				boolean found = false;
+				Iterator<? extends IContentNode> newIter2 = newChildren.iterator();
+				while (newIter2.hasNext()) {
+					IContentNode newChild = newIter2.next();
+					if (oldChild.equals(newChild)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					removed.add(oldChild);
+				}
+			}
+			children.removeAll(removed);
+		}
+		
+	}
 
     private void clearError() {
         if (error != null) {

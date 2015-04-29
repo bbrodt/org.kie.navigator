@@ -14,77 +14,50 @@
 package org.kie.navigator.view.content;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.IKieProject;
 import org.kie.navigator.view.server.IKieRepository;
+import org.kie.navigator.view.server.IKieResourceHandler;
 
 /**
  *
  */
 public class RepositoryNode extends ContainerNode<OrganizationNode> {
-	private final IKieRepository repository;
-	private List<IKieProject> projects;
 	
 	/**
 	 * @param container
 	 * @param name
 	 */
 	protected RepositoryNode(OrganizationNode container, IKieRepository repository) {
-		super(container, repository.getName());
-		this.repository = repository;
+		super(container, repository);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
-	 */
-	@Override
-	protected List<? extends Object> delegateGetChildren() {
-		if (projects!=null) {
-			List<ProjectNode> result = new ArrayList<ProjectNode>();
-			ProjectNode node;
-			for (IKieProject project : projects) {
-				node = new ProjectNode(this,project);
-				result.add(node);
-			}
-			return result;
+	protected List<? extends IContentNode<?>> createChildren() {
+		List<ProjectNode> result = new ArrayList<ProjectNode>();
+		Iterator<? extends IKieResourceHandler> iter = handlerChildren.iterator();
+		while (iter.hasNext()) {
+			IKieResourceHandler h = iter.next();
+			if (h instanceof IKieProject)
+				result.add(new ProjectNode(this,(IKieProject)h));
 		}
-		return null;
+		return result;
+
 	}
 
 	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateClearChildren()
+	 * @see org.kie.navigator.view.content.ContentNode#equals(java.lang.Object)
 	 */
 	@Override
-	protected void delegateClearChildren() {
-		if (projects!=null) {
-			projects.clear();
-			projects = null;
+	public boolean equals(Object obj) {
+		try {
+			RepositoryNode other = (RepositoryNode) obj;
+			return other.getName().equals(this.getName());
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateLoad()
-	 */
-	@Override
-	protected void delegateLoad() throws Exception {
-		projects = getHandler().getProjects(repository);
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-    
-    public boolean isResolved() {
-    	return repository.isResolved();
-    }
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
-	 */
-	@Override
-	public boolean hasChildren() {
-		return isResolved();
+		catch (Exception ex) {
+		}
+		return false;
 	}
 }

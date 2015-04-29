@@ -177,7 +177,12 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 		return server.getId()+"/projects";
 	}
 	
-	public boolean isResolved() {
+	public boolean isLoaded() {
 		return isServerRunning();
+	}
+	
+	@Override
+	public IServer getServer() {
+		return server;
 	}
 }

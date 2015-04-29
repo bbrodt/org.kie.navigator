@@ -211,7 +211,10 @@ public class KieNavigatorView extends CommonNavigator {
 		job.setPriority(Job.SHORT);
 		job.schedule();
 	}
-
+	
+	public void refresh() {
+	}
+	
 	protected void deferredInitialize() {
 		addListener();
 
@@ -269,7 +272,9 @@ public class KieNavigatorView extends CommonNavigator {
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
 				if (!tableViewer.getTree().isDisposed()) {
+					Object[] expanded = tableViewer.getExpandedElements();
 					tableViewer.refresh(server, true);
+					tableViewer.setExpandedElements(expanded);
 				}
 				
 //				if (server.getServerState() == IServer.STATE_STARTED) 
@@ -287,19 +292,6 @@ public class KieNavigatorView extends CommonNavigator {
 					for (ServerPort p : server.getServerPorts(null)) {
 						System.out.println(p.getProtocol()+"="+p.getPort());
 					}
-//					final String requestJSON = "{\"operation\" : \"read-children-names\", \"child-type\" : \"deployment\", \"address\" : null}";
-//					try {
-//						String resultJSON = JBoss7ManagerUtil.executeWithService(new JBoss7ManagerUtil.IServiceAware<String>() {
-//						    public String execute(IJBoss7ManagerService service) throws Exception {
-//						        return service.execute(new AS7ManagementDetails(server), requestJSON);
-//						    }
-//						}, server);
-//				        ModelNode result = ModelNode.fromJSONString(resultJSON);
-//				        System.out.println(result.asString());
-//					} catch (Exception e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
 				}
 				
 			}

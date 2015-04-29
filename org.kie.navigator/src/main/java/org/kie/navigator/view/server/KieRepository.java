@@ -13,9 +13,14 @@
 
 package org.kie.navigator.view.server;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
 
-import org.eclipse.wst.server.core.IServer;
+import org.eclipse.egit.core.RepositoryCache;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 
 /**
  *
@@ -23,8 +28,7 @@ import org.eclipse.wst.server.core.IServer;
 public class KieRepository extends KieResourceHandler implements IKieRepository {
 
 	// debug/test only
-	private boolean resolved;
-	private static boolean resolvedToggle;
+	Repository repository;
 	
 	/**
 	 * @param organization
@@ -32,16 +36,52 @@ public class KieRepository extends KieResourceHandler implements IKieRepository 
 	 */
 	public KieRepository(IKieOrganization organization, String name) {
 		super(organization, name);
-		resolvedToggle = resolved = !resolvedToggle;
-	}
-
-	@Override
-	public List<IKieProject> getProjects() throws Exception {
-		return getDelegate().getProjects(this);
 	}
 	
 	@Override
-	public boolean isResolved() {
-		return resolved;
+	public List<? extends IKieResourceHandler> getChildren() throws Exception {
+		return getDelegate().getProjects(this);
+	}
+	
+	public Object load() {
+		if (repository == null) {
+			RepositoryCache repositoryCache = org.eclipse.egit.core.Activator.getDefault().getRepositoryCache();
+			
+			for (Repository repository : repositoryCache.getAllRepositories()) {
+				StoredConfig storedConfig = repository.getConfig();
+				Set<String> remotes = storedConfig.getSubsections("remote");
+				for (String remoteName : remotes) {
+					String url = storedConfig.getString("remote", remoteName, "url");
+					System.out.println(repository.getDirectory());
+					System.out.println(url);
+					try {
+						URI u = new URI(url);
+						String user = u.getUserInfo();
+						String host = u.getHost();
+						String path[] = u.getPath().split("/");
+						String repoName = path[path.length-1];
+						if (	name.equals(repoName) &&
+								host.equals(getServer().getHost()) &&
+								user.equals(getDelegate().getUsername())) {
+							this.repository = repository;
+							break;
+						}
+					} catch (URISyntaxException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		return repository;
+	}
+	
+	@Override
+	public boolean isLoaded() {
+		return repository != null;
+	}
+	
+	public Repository getRepository() {
+		return repository;
 	}
 }

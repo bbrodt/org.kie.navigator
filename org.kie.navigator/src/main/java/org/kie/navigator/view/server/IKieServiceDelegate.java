@@ -43,4 +43,9 @@ public interface IKieServiceDelegate {
 	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
 	
 	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
+
+	String getUsername();
+	
+	String getPassword();
+
 }

@@ -55,7 +55,11 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 	public void dispose() {
 	}
 	
-	public boolean isResolved() {
+	public Object load() {
+		return null;
+	}
+	
+	public boolean isLoaded() {
 		return false;
 	}
 }

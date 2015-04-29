@@ -25,5 +25,7 @@ public interface IKieResourceHandler {
 	IServer getServer();
 	void dispose();
 	IKieServiceDelegate getDelegate();
-	boolean isResolved();
+	Object load();
+	boolean isLoaded();
+	List<? extends IKieResourceHandler> getChildren() throws Exception;
 }

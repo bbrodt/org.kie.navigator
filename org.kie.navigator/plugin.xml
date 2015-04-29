@@ -28,30 +28,24 @@
 			<includes>
 				<contentExtension
 					isRoot="true"
-					pattern="org.kie.navigator.kieContent">
-				</contentExtension>
+					pattern="org.kie.navigator.kieContent"/>
+
+				<!-- content from eclipse UI Package Explorer -->
+				<contentExtension pattern="org.eclipse.jdt.java.ui.javaContent" />
+				<contentExtension pattern="org.eclipse.jdt.java.ui.filters.*" />	
+				<contentExtension pattern="org.eclipse.jdt.java.ui.javaLinkHelper" />	
+
+				<!-- content from eclipse UI Project Viewer org.eclipse.ui.navigator.ProjectExplorer -->
 				<contentExtension
 					isRoot="false"
-					pattern="org.eclipse.jdt.java.ui.javaContent">
-				</contentExtension>
-				<contentExtension
-					isRoot="true"
-					pattern="org.eclipse.jdt.ui.javaModelContent">
-				</contentExtension>
-				<contentExtension
-					isRoot="false"
-					pattern="org.eclipse.egit.ui.RepositoriesViewContent">
-				</contentExtension>
+					pattern="org.eclipse.ui.navigator.resourceContent"/>
+				
 			</includes>
 		</viewerContentBinding>
-		<!-- content from eclipse UI Project Viewer -->
 
 		<viewerActionBinding viewerId="org.kie.navigator.view">
 			<includes>
-				<actionExtension pattern="org.eclipse.ui.navigator.resources.*">
-				</actionExtension>
-				<actionExtension pattern="org.kie.navigator.view.content.*">
-				</actionExtension>
+				<actionExtension pattern="org.kie.navigator.view.content.*"/>
 			</includes>
 		</viewerActionBinding>
 	</extension>
@@ -95,8 +89,7 @@
 				</and>
 			</triggerPoints>
 			<possibleChildren>
-				<instanceof value="org.kie.navigator.view.content.IContentNode">
-				</instanceof>
+				<instanceof value="org.kie.navigator.view.content.IContentNode"/>
 			</possibleChildren>
 			
 			<!--

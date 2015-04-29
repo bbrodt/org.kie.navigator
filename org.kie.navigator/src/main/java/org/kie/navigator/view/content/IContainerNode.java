@@ -12,14 +12,6 @@ package org.kie.navigator.view.content;
 
 import java.util.List;
 
-/**
- * IContainerNode
- * 
- * <p/>
- * Base interface for container (non-leaf) nodes.
- * 
- * @author Rob Cernich
- */
 public interface IContainerNode<T extends IContainerNode<?>> extends IContentNode<T> {
 
     /**

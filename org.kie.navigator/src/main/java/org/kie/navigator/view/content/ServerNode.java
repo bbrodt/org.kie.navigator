@@ -14,9 +14,11 @@
 package org.kie.navigator.view.content;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
+import org.kie.navigator.KieNavigatorContentRoot;
 import org.kie.navigator.view.server.IKieOrganization;
 import org.kie.navigator.view.server.IKieResourceHandler;
 import org.kie.navigator.view.server.KieServer;
@@ -25,68 +27,49 @@ import org.kie.navigator.view.server.KieServer;
  *
  */
 public class ServerNode extends ContainerNode {
-	protected List<? extends IKieResourceHandler> childrenHandlers = null;
 
 	/**
 	 * @param server
 	 * @param name
 	 */
-	public ServerNode(IServer server, String name) {
-		super(server, name);
+	public ServerNode(IServer server) {
+		super(server);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateGetChildren()
-	 */
-	@Override
-	protected List<? extends Object> delegateGetChildren() {
-		if (childrenHandlers!=null) {
-			List<OrganizationNode> result = new ArrayList<OrganizationNode>();
-			for (IKieResourceHandler h : childrenHandlers) {
-				if (h instanceof IKieOrganization)
-					result.add(new OrganizationNode(this,(IKieOrganization)h));
-			}
-			return result;
+	
+	protected List<? extends IContentNode<?>> createChildren() {
+		List<OrganizationNode> children = new ArrayList<OrganizationNode>();
+		Iterator<? extends IKieResourceHandler> iter = handlerChildren.iterator();
+		while (iter.hasNext()) {
+			IKieResourceHandler h = iter.next();
+			if (h instanceof IKieOrganization)
+				children.add(new OrganizationNode(this,(IKieOrganization)h));
 		}
-		return null;
+		return children;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateClearChildren()
-	 */
-	@Override
-	protected void delegateClearChildren() {
-		if (childrenHandlers!=null) {
-			childrenHandlers.clear();
-			childrenHandlers = null;
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.ContainerNode#delegateLoad()
-	 */
-	@Override
-	protected void delegateLoad() throws Exception {
-		childrenHandlers = getHandler().getChildren();
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
-    protected KieServer getHandler() {
+	
+    protected IKieResourceHandler getHandler() {
     	 if (handler==null) {
     		 handler = new KieServer(server);
     	 }
     	 return handler;
     }
 
+	@Override
+	public boolean isResolved() {
+		return getServer().getServerState() == IServer.STATE_STARTED;
+	}
+
 	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.content.IContainerNode#hasChildren()
+	 * @see org.kie.navigator.view.content.ContentNode#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean hasChildren() {
-		return getServer().getServerState() == IServer.STATE_STARTED;
+	public boolean equals(Object obj) {
+		try {
+			ServerNode other = (ServerNode)obj;
+			return other.getServer().getId().equals(this.getServer().getId());
+		}
+		catch (Exception ex) {
+		}
+		return false;
 	}
 }
