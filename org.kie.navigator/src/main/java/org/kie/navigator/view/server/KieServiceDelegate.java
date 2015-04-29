@@ -18,8 +18,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
+import org.eclipse.wst.server.core.ServerPort;
+import org.jboss.ide.eclipse.as.core.server.internal.JBossServer;
 
 /**
  *
@@ -27,6 +31,18 @@ import org.eclipse.wst.server.core.IServer;
 public abstract class KieServiceDelegate implements IKieServiceDelegate {
 
 	protected IServer server;
+	// TODO: fetch from Preferences
+	protected static List<String> kieApplicationNames = new ArrayList<String>();
+	static {
+		kieApplicationNames.add("kie-wb");
+		kieApplicationNames.add("kie-drools-wb");
+		kieApplicationNames.add("kie-jbpm-wb");
+		kieApplicationNames.add("business-central");
+		kieApplicationNames.add("drools-console");
+		kieApplicationNames.add("jbpm-console");
+	}
+	protected String kieApplication;
+	protected String httpPort;
 	
 	/**
 	 * @param server
@@ -37,6 +53,48 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 	
 	public void setServer(IServer server) {
 		this.server = server;
+		// find the HTTP port for this server. Note that the JBossServer
+		// implementation of Server does not support getServerPorts()!
+		Object o = getServer().getAdapter(JBossServer.class);
+		if (o instanceof JBossServer) {
+			Integer ip = ((JBossServer)o).getJBossWebPort();
+			httpPort = ip.toString();
+		}
+		else {
+			// assume that Server.getServerPorts() actually works!
+			ServerPort[] ports = getServer().getServerPorts(null);
+			for (ServerPort port : ports) {
+				if ("HTTP".equals(port.getProtocol())) {
+					Integer ip = port.getPort();
+					httpPort = ip.toString();
+					break;
+				}
+			}
+		}
+		if (httpPort==null) {
+			// assume that it's 8080
+			// TODO: fetch from Preferences
+			httpPort = "8080";
+		}
+		
+		// try to determine the HTTP URL
+		for (String s : kieApplicationNames) {
+			try {
+				kieApplication = s;
+				System.out.print("Trying "+getKieRESTUrl()+"...");
+				httpGet("organizationalunits");
+				System.out.println("success!");
+				break;
+			}
+			catch (Exception e) {
+				System.out.println("not found");
+				kieApplication = null;
+			}
+		}
+		if (kieApplication==null) {
+			// TODO: fetch from Preferences
+			kieApplication = "kie-wb";
+		}
 	}
 
 	public IServer getServer() {
@@ -62,18 +120,18 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 	protected String httpPost(String request) {
 		return "";
 	}
-
-	protected void httpClose() {
-		
-	}
 	
+	// TODO: fetch from Preferences
 	public String getUsername() {
 		return "admin";
 	}
 	
+	// TODO: fetch from Preferences
 	public String getPassword() {
 		return "admin";
 	}
 	
-	protected abstract String getKieRESTUrl();
+	protected String getKieRESTUrl() {
+		return "http://" + getServer().getHost() + ":" + httpPort + "/" + kieApplication + "/rest";
+	}
 }

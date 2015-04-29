@@ -5,29 +5,18 @@ Bundle-SymbolicName: org.kie.navigator;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.kie.navigator.Activator
 Require-Bundle: org.eclipse.ui,
- org.eclipse.ui.forms;bundle-version="3.6.100",
  org.eclipse.ui.forms,
- org.eclipse.ui.navigator;bundle-version="3.5.400",
+ org.eclipse.ui.forms,
+ org.eclipse.ui.navigator,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.eclipse.wst.common.core,
- org.eclipse.wst.server.core;bundle-version="1.6.2",
- org.eclipse.wst.server.ui;bundle-version="1.5.100",
- org.eclipse.wst.server.discovery;bundle-version="1.0.501",
- org.eclipse.wst.server.http.core;bundle-version="1.0.300",
- org.eclipse.wst.server.http.ui;bundle-version="1.0.400",
- org.eclipse.wst.server.preview;bundle-version="1.1.300",
- org.eclipse.wst.server.preview.adapter;bundle-version="1.1.300",
- org.eclipse.wst.server.ui.doc.user;bundle-version="1.1.600",
- org.eclipse.wst.server.ui.infopop;bundle-version="1.1.200",
- org.jboss.ide.eclipse.as.ui;bundle-version="3.0.3",
- org.jboss.ide.eclipse.as.dmr;bundle-version="3.0.3",
+ org.eclipse.wst.server.core,
+ org.jboss.ide.eclipse.as.ui,
  org.jboss.ide.eclipse.as.core,
- org.jboss.ide.eclipse.as.management.core,
- org.jboss.tools.jmx.core;bundle-version="1.6.3"
+ org.jboss.tools.jmx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.debug.core,
- org.eclipse.egit.core;version="4.0.0",
- org.eclipse.jgit.lib;version="4.0.0",
- org.eclipse.jgit.util;version="4.0.0"
+ org.eclipse.egit.core,
+ org.eclipse.jgit.lib,
+ org.eclipse.jgit.util

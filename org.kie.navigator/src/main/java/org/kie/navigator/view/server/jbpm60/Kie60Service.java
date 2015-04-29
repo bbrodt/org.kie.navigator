@@ -113,12 +113,4 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 		return result;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.kie.navigator.view.server.KieServiceImpl#getHttpUrl()
-	 */
-	@Override
-	protected String getKieRESTUrl() {
-		return "http://localhost:8080/jbpm-console/rest";
-	}
 }
