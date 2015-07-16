@@ -1,0 +1,50 @@
+package org.kie.eclipse.navigator.view.actions;
+
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.navigator.ICommonActionExtensionSite;
+import org.kie.eclipse.navigator.IKieNavigatorConstants;
+import org.kie.eclipse.navigator.view.content.IContainerNode;
+
+public class ServerActionProvider extends KieNavigatorActionProvider implements IKieNavigatorConstants {
+
+	public ServerActionProvider() {
+	}
+
+    public void init(ICommonActionExtensionSite aSite) {
+        super.init(aSite);
+        addAction(new CreateOrganizationAction(aSite.getStructuredViewer()));
+        addAction(new ShowPropertiesAction(aSite));
+    }
+
+	private class CreateOrganizationAction extends KieNavigatorAction {
+
+		protected CreateOrganizationAction(ISelectionProvider provider, String text) {
+			super(provider, text);
+		}
+		
+		public CreateOrganizationAction(ISelectionProvider selectionProvider) {
+			this(selectionProvider, "Create Organization");
+		}
+
+		public void run() {
+            IStructuredSelection selection = getStructuredSelection();
+            if (selection == null || selection.isEmpty()) {
+                return;
+            }
+            IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
+            System.out.println("Create Organization: "+container.getName());
+        }
+	}
+
+	private class ShowPropertiesAction extends PropertyDialogAction implements IKieNavigatorAction {
+		
+		public ShowPropertiesAction(ICommonActionExtensionSite aSite) {
+			super(aSite.getViewSite().getShell(), aSite.getStructuredViewer());
+		}
+		public void calculateEnabled() {
+			setEnabled(isEnabled());
+		}
+	}
+}

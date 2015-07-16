@@ -2,9 +2,9 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension-point
-		id="org.kie.navigator.serviceImpl"
+		id="org.kie.eclipse.navigator.serviceImpl"
 		name="KIE Service Implementation"
-		schema="schema/org.kie.navigator.serviceImpl.exsd" />
+		schema="schema/serviceImpl.exsd" />
 	<extension point="org.eclipse.ui.views">
 		<category
 			id="org.drools.eclipse.views"
@@ -12,9 +12,9 @@
 		</category>
 		<view
 			category="org.drools.eclipse.views"
-			class="org.kie.navigator.view.KieNavigatorView"
+			class="org.kie.eclipse.navigator.view.KieNavigatorView"
 			icon="icons/navigator.gif"
-			id="org.kie.navigator.view"
+			id="org.kie.eclipse.navigator.view"
 			name="Kie Navigator"
 			restorable="true">
 		</view>
@@ -22,13 +22,13 @@
 	<extension
 		id="org.kie.common.navigator.viewer"
 		point="org.eclipse.ui.navigator.viewer">
-		<viewer viewerId="org.kie.navigator.view">
+		<viewer viewerId="org.kie.eclipse.navigator.view">
 		</viewer>
-		<viewerContentBinding viewerId="org.kie.navigator.view">
+		<viewerContentBinding viewerId="org.kie.eclipse.navigator.view">
 			<includes>
 				<contentExtension
 					isRoot="true"
-					pattern="org.kie.navigator.kieContent"/>
+					pattern="org.kie.eclipse.navigator.kieContent"/>
 
 				<!-- content from eclipse UI Package Explorer -->
 				<contentExtension pattern="org.eclipse.jdt.java.ui.javaContent" />
@@ -43,9 +43,9 @@
 			</includes>
 		</viewerContentBinding>
 
-		<viewerActionBinding viewerId="org.kie.navigator.view">
+		<viewerActionBinding viewerId="org.kie.eclipse.navigator.view">
 			<includes>
-				<actionExtension pattern="org.kie.navigator.view.content.*"/>
+				<actionExtension pattern="org.kie.eclipse.navigator.view.content.*"/>
 			</includes>
 		</viewerActionBinding>
 	</extension>
@@ -53,10 +53,10 @@
 	<extension point="org.eclipse.ui.navigator.navigatorContent">
 		<navigatorContent
 			activeByDefault="true"
-			contentProvider="org.kie.navigator.view.KieNavigatorContentProvider"
+			contentProvider="org.kie.eclipse.navigator.view.KieNavigatorContentProvider"
 			icon="icons/navigator.gif"
-			id="org.kie.navigator.kieContent"
-			labelProvider="org.kie.navigator.view.KieNavigatorLabelProvider"
+			id="org.kie.eclipse.navigator.kieContent"
+			labelProvider="org.kie.eclipse.navigator.view.KieNavigatorLabelProvider"
 			name="KIE Navigator - Server Content"
 			priority="normal">
 			<triggerPoints>
@@ -89,15 +89,15 @@
 				</and>
 			</triggerPoints>
 			<possibleChildren>
-				<instanceof value="org.kie.navigator.view.content.IContentNode"/>
+				<instanceof value="org.kie.eclipse.navigator.view.content.IContentNode"/>
 			</possibleChildren>
 			
 			<!--
 			<actionProvider
-				class="org.kie.navigator.view.actions.RefreshActionProvider"
+				class="org.kie.eclipse.navigator.view.actions.RefreshActionProvider"
 				id="org.navigator.view.content.container">
 				<enablement>
-					<instanceof value="org.kie.navigator.view.content.IContainerNode">
+					<instanceof value="org.kie.eclipse.navigator.view.content.IContainerNode">
 					</instanceof>
 				</enablement>
 			</actionProvider>
@@ -107,29 +107,74 @@
 		</navigatorContent>
 		
 		<actionProvider
-			class="org.kie.navigator.view.actions.RefreshActionProvider"
-			id="org.kie.navigator.view.content.container">
+			class="org.kie.eclipse.navigator.view.actions.RefreshActionProvider"
+			id="org.kie.eclipse.navigator.view.content.container">
 			<enablement>
-				<instanceof value="org.kie.navigator.view.content.IContainerNode">
+				<instanceof value="org.kie.eclipse.navigator.view.content.IContainerNode">
+				</instanceof>
+			</enablement>
+		</actionProvider>
+		
+		<actionProvider
+			class="org.kie.eclipse.navigator.view.actions.ServerActionProvider"
+			id="org.kie.eclipse.navigator.view.content.server">
+			<enablement>
+				<instanceof value="org.kie.eclipse.navigator.view.content.ServerNode">
+				</instanceof>
+			</enablement>
+		</actionProvider>
+		
+		<actionProvider
+			class="org.kie.eclipse.navigator.view.actions.OrganizationActionProvider"
+			id="org.kie.eclipse.navigator.view.content.organization">
+			<enablement>
+				<instanceof value="org.kie.eclipse.navigator.view.content.OrganizationNode">
+				</instanceof>
+			</enablement>
+		</actionProvider>
+		
+		<actionProvider
+			class="org.kie.eclipse.navigator.view.actions.RepositoryActionProvider"
+			id="org.kie.eclipse.navigator.view.content.repository">
+			<enablement>
+				<instanceof value="org.kie.eclipse.navigator.view.content.RepositoryNode">
+				</instanceof>
+			</enablement>
+		</actionProvider>
+		
+		<actionProvider
+			class="org.kie.eclipse.navigator.view.actions.ProjectActionProvider"
+			id="org.kie.eclipse.navigator.view.content.project">
+			<enablement>
+				<instanceof value="org.kie.eclipse.navigator.view.content.ProjectNode">
 				</instanceof>
 			</enablement>
 		</actionProvider>
 	</extension>
 
 	<extension
-		id="org.kie.navigator.service.wildfly.80"
+		id="org.kie.eclipse.navigator.service.wildfly.80"
 		name="Wildfly 8.x"
-		point="org.kie.navigator.serviceImpl">
+		point="org.kie.eclipse.navigator.serviceImpl">
 		<containerBinding
-			class="org.kie.navigator.view.server.jbpm60.Kie60Service"
-			kieVersion="org.jboss.kie.60"
+			class="org.kie.eclipse.navigator.view.server.jbpm60.Kie60Service"
+			runtimeId="org.jboss.kie.6.2"
 			serverId="org.jboss.ide.eclipse.as.wildfly.80">
 		</containerBinding>
 		<containerBinding
-			class="org.kie.navigator.view.server.jbpm60.Kie60Service"
-			kieVersion="org.jboss.kie.60"
+			class="org.kie.eclipse.navigator.view.server.jbpm60.Kie60Service"
+			runtimeId="org.jboss.kie.6.1"
 			serverId="org.jboss.ide.eclipse.as.71">
 		</containerBinding>
 	</extension>
+ <extension
+       point="org.eclipse.ui.propertyPages">
+    <page
+          class="org.kie.eclipse.navigator.preferences.ServerPropertyPage"
+          id="org.kie.eclipse.navigator.serverPropertyPage"
+          name="Server Properties"
+          objectClass="org.kie.eclipse.navigator.view.content.IContentNode">
+    </page>
+ </extension>
 
 </plugin>

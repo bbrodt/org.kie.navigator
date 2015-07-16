@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Kie Navigator
-Bundle-SymbolicName: org.kie.navigator;singleton:=true
+Bundle-SymbolicName: org.kie.eclipse.navigator;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.kie.navigator.Activator
+Bundle-Activator: org.kie.eclipse.navigator.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.forms,
  org.eclipse.ui.forms,
@@ -18,5 +18,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.debug.core,
  org.eclipse.egit.core,
+ org.eclipse.egit.core.op,
+ org.eclipse.egit.core.project,
+ org.eclipse.egit.ui,
+ org.eclipse.jgit.events,
  org.eclipse.jgit.lib,
  org.eclipse.jgit.util
