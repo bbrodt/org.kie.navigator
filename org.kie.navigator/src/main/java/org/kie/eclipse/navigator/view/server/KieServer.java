@@ -62,6 +62,7 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 							if (o instanceof IKieServiceDelegate) {
 								result = (IKieServiceDelegate)o;
 								result.setServer(server);
+								result.setHandler(this);
 								return result;
 							}
 						}

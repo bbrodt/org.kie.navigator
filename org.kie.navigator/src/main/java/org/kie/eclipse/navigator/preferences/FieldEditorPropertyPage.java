@@ -82,6 +82,11 @@ public abstract class FieldEditorPropertyPage extends PropertyPage implements IW
 	public FieldEditorPropertyPage() {
 	}
 
+	public FieldEditorPropertyPage(int style) {
+		this();
+		this.style = style;
+	}
+
 	/**
 	 * Adds the given field editor to this page.
 	 *
@@ -108,7 +113,7 @@ public abstract class FieldEditorPropertyPage extends PropertyPage implements IW
 		if (fields != null) {
 			for (int i = 0; i < fields.size(); i++) {
 				FieldEditor fieldEditor = fields.get(i);
-				// fieldEditor.adjustForNumColumns(numColumns);
+				fieldEditor.fillIntoGrid(fieldEditorParent, numColumns);
 			}
 		}
 	}

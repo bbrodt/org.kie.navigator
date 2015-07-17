@@ -24,12 +24,14 @@ import java.util.List;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerPort;
 import org.jboss.ide.eclipse.as.core.server.internal.JBossServer;
+import org.kie.eclipse.navigator.IKieNavigatorConstants;
 
 /**
  *
  */
-public abstract class KieServiceDelegate implements IKieServiceDelegate {
+public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNavigatorConstants {
 
+	protected IKieResourceHandler handler;
 	protected IServer server;
 	// TODO: fetch from Preferences
 	protected static List<String> kieApplicationNames = new ArrayList<String>();
@@ -42,7 +44,7 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 		kieApplicationNames.add("jbpm-console");
 	}
 	private String kieApplication;
-	private String httpPort;
+	private int httpPort = -1;
 
 	/**
 	 * @param server
@@ -57,6 +59,14 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 
 	public IServer getServer() {
 		return server;
+	}
+	
+	public void setHandler(IKieResourceHandler handler) {
+		this.handler = handler;
+	}
+	
+	public IKieResourceHandler getHandler() {
+		return handler;
 	}
 	
 	protected String httpGet(String request) throws IOException {
@@ -81,37 +91,53 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 	
 	// TODO: fetch from Preferences
 	public String getUsername() {
-		return "admin";
+		return handler.getPreference(PREF_SERVER_USERNAME, "admin");
 	}
 	
 	// TODO: fetch from Preferences
 	public String getPassword() {
-		return "admin";
+		return handler.getPreference(PREF_SERVER_PASSWORD, "admin");
 	}
 	
 	// TODO: fetch from Preferences
 	public int getGitPort() {
-		return 8001;
+		return handler.getPreference(PREF_SERVER_GIT_PORT, 8001);
 	}
 	
 	public String getKieApplication() {
 		if (kieApplication==null) {
-			// try to determine the HTTP URL
-			for (String s : kieApplicationNames) {
+			String app = handler.getPreference(PREF_SERVER_KIE_APPLICATION_NAME, null);
+			if (app!=null) {
 				try {
-					kieApplication = s;
+					kieApplication = app;
 					System.out.print("Trying "+getKieRESTUrl()+"...");
 					httpGet("organizationalunits");
 					System.out.println("success!");
-					break;
 				}
 				catch (Exception e) {
 					System.out.println("not found");
 					kieApplication = null;
 				}
 			}
+			
 			if (kieApplication==null) {
-				// TODO: fetch from Preferences
+				// try to determine the HTTP URL from standard application names
+				for (String s : kieApplicationNames) {
+					try {
+						kieApplication = s;
+						System.out.print("Trying "+getKieRESTUrl()+"...");
+						httpGet("organizationalunits");
+						handler.putPreference(PREF_SERVER_KIE_APPLICATION_NAME, s);
+						System.out.println("success!");
+						break;
+					}
+					catch (Exception e) {
+						System.out.println("not found");
+						kieApplication = null;
+					}
+				}
+			}
+			if (kieApplication==null) {
 				kieApplication = "kie-wb";
 			}
 		}
@@ -122,36 +148,33 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate {
 		this.kieApplication = kieApplication;
 	}
 
-	public String getHttpPort() {
-		if (httpPort==null) {
+	public int getHttpPort() {
+		if (httpPort==-1) {
 			// find the HTTP port for this server. Note that the JBossServer
 			// implementation of Server does not support getServerPorts()!
 			Object o = getServer().getAdapter(JBossServer.class);
 			if (o instanceof JBossServer) {
-				Integer ip = ((JBossServer)o).getJBossWebPort();
-				httpPort = ip.toString();
+				httpPort = ((JBossServer)o).getJBossWebPort();
 			}
 			else {
 				// assume that Server.getServerPorts() actually works!
 				ServerPort[] ports = getServer().getServerPorts(null);
 				for (ServerPort port : ports) {
 					if ("HTTP".equals(port.getProtocol())) {
-						Integer ip = port.getPort();
-						httpPort = ip.toString();
+						httpPort = port.getPort();
 						break;
 					}
 				}
 			}
-			if (httpPort==null) {
+			if (httpPort==-1) {
 				// assume that it's 8080
-				// TODO: fetch from Preferences
-				httpPort = "8080";
+				return handler.getPreference(PREF_SERVER_HTTP_PORT, 8080);
 			}
 		}
 		return httpPort;
 	}
 
-	public void setHttpPort(String httpPort) {
+	public void setHttpPort(int httpPort) {
 		this.httpPort = httpPort;
 	}
 	

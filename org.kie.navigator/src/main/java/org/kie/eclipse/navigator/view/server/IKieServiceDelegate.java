@@ -25,24 +25,19 @@ public interface IKieServiceDelegate {
 
 	public final static String KIE_SERVICE_IMPL_ID = "org.kie.eclipse.navigator.serviceImpl";
 
-	/**
-	 * @param server
-	 */
 	void setServer(IServer server);
-
-	/**
-	 * @return server
-	 */
 	IServer getServer();
 	
-	/**
-	 * @return
-	 */
+	void setHandler(IKieResourceHandler handler);
+	IKieResourceHandler getHandler();
+	
 	List<IKieOrganization> getOrganizations(IKieServer service) throws IOException;
 	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
 	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
+
 	String getUsername();
 	String getPassword();
-	String getHttpPort();
+	int getHttpPort();
 	int getGitPort();
+	String getKieApplication();
 }
