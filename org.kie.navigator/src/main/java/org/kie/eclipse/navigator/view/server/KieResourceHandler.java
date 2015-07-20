@@ -20,6 +20,8 @@ import org.eclipse.wst.server.core.IServer;
 import org.kie.eclipse.navigator.Activator;
 import org.osgi.service.prefs.Preferences;
 
+import com.eclipsesource.json.JsonObject;
+
 /**
  *
  */
@@ -28,6 +30,7 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 	protected static IEclipsePreferences preferences;
 	protected IKieResourceHandler parent;
 	protected String name;
+	protected JsonObject properties;
 
 	public KieResourceHandler(IKieResourceHandler parent, String name) {
 		this.parent = parent;
@@ -87,6 +90,14 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 		return false;
 	}
 	
+	public void setProperties(JsonObject properties) {
+		this.properties = properties;
+	}
+	
+	public JsonObject getProperties() {
+		return properties;
+	}
+	
 	protected static String getCanonicalName(String name) {
 		return name.replaceAll(CANONICAL_NAME_PATTERN, CANONICAL_NAME_REPLACEMENT);
 	}
@@ -95,13 +106,13 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 		String canonicalName = getCanonicalName(getName());
 		String path = "";
 		if (parent!=null) {
-			path = parent.getPreferenceName(null) + PATH_SEPARATOR + canonicalName;
+			path = parent.getPreferenceName(null) + PREF_PATH_SEPARATOR + canonicalName;
 		}
 		else
 			path = canonicalName;
 		if (name==null)
 			return path;
-		return path + PATH_SEPARATOR + getCanonicalName(name);
+		return path + PREF_PATH_SEPARATOR + getCanonicalName(name);
 	}
 	
 	public Preferences getPreferences() {

@@ -54,7 +54,9 @@ public class Kie60Service extends KieServiceDelegate {
 		JsonArray ja = JsonArray.readFrom(response);
 		for (int i=0; i<ja.size(); ++i) {
 			JsonObject jo = ja.get(i).asObject();
-			result.add(new KieOrganization(service, jo.get("name").asString()));
+			KieOrganization ko = new KieOrganization(service, jo.get("name").asString());
+			ko.setProperties(jo);
+			result.add(ko);
 		}
 		
 		return result;
@@ -68,13 +70,13 @@ public class Kie60Service extends KieServiceDelegate {
 		List<IKieRepository> result = new ArrayList<IKieRepository>();
 
 		String response = httpGet("organizationalunits");
-		JsonArray ja = JsonArray.readFrom(response);
-		for (int i=0; i<ja.size(); ++i) {
-			JsonObject jo = ja.get(i).asObject();
+		JsonArray ja1 = JsonArray.readFrom(response);
+		for (int i=0; i<ja1.size(); ++i) {
+			JsonObject jo = ja1.get(i).asObject();
 			if (organization.getName().equals(jo.get("name").asString())) {
-				JsonArray jar = jo.get("repositories").asArray();
-				for (int j=0; j<jar.size(); ++j) {
-					JsonValue jv = jar.get(j);
+				JsonArray ja2 = jo.get("repositories").asArray();
+				for (int j=0; j<ja2.size(); ++j) {
+					JsonValue jv = ja2.get(j);
 					KieRepository kr = new KieRepository(organization, jv.asString());
 					result.add(kr);
 				}
@@ -106,5 +108,23 @@ public class Kie60Service extends KieServiceDelegate {
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public void createOrganization(IKieServer service, IKieOrganization organization) throws IOException {
+		// TODO: use a ProgressMonitor here?
+		final String jobId = httpPost("organizationalunits", organization.getProperties());
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to create Organization '"+organization.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to create Organization '"+organization.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to create Organization '"+organization.getName()+"' was canceled");
+		}
 	}
 }

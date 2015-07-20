@@ -69,7 +69,7 @@ public class KieRepository extends KieResourceHandler implements IKieRepository,
 		}
 		else
 		{
-			defaultRepoPath += File.separator + parent.getPreferenceName(null).replace(PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
+			defaultRepoPath += File.separator + parent.getPreferenceName(null).replace(PREF_PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
 			repoPath = parent.getPreference(PREF_GIT_REPO_PATH, defaultRepoPath);
 		}
 		return repoPath;

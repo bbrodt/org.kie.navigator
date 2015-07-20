@@ -82,7 +82,7 @@ public abstract class ContainerNode<T extends IContainerNode<?>> extends Content
     		handlerChildren = (List<IKieProject>) getHandler().getChildren();
             clearError();
         } catch (Exception e) {
-            setError(new ErrorNode(this, "Loading error"));
+            setError(new ErrorNode(this, e));
         }
     }
 

@@ -16,15 +16,25 @@ package org.kie.eclipse.navigator.view.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerPort;
 import org.jboss.ide.eclipse.as.core.server.internal.JBossServer;
 import org.kie.eclipse.navigator.IKieNavigatorConstants;
+
+import com.eclipsesource.json.JsonObject;
 
 /**
  *
@@ -46,13 +56,16 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	private String kieApplication;
 	private int httpPort = -1;
 
+	private static int STATUS_REQUEST_DELAY = 1000;
+	private static int STATUS_REQUEST_TIMEOUT = 60000;
+	
 	/**
 	 * @param server
 	 */
 	public KieServiceDelegate() {
-		
+
 	}
-	
+
 	public void setServer(IServer server) {
 		this.server = server;
 	}
@@ -60,15 +73,15 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	public IServer getServer() {
 		return server;
 	}
-	
+
 	public void setHandler(IKieResourceHandler handler) {
 		this.handler = handler;
 	}
-	
+
 	public IKieResourceHandler getHandler() {
 		return handler;
 	}
-	
+
 	protected String httpGet(String request) throws IOException {
 		String host = getKieRESTUrl();
 		URL url = new URL(host + "/" + request);
@@ -81,36 +94,134 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 		return response;
 	}
 
-	protected String httpDelete(String request) {
+	protected String httpDelete(String request) throws IOException {
 		return "";
 	}
 
-	protected String httpPost(String request) {
-		return "";
+	/**
+	 * Send an HTTP POST request to the KIE console.
+	 * 
+	 * @param request - the request URL fragment; see the Drools REST API
+	 *            documentation for details
+	 * @param body - the JSON object required by the request
+	 * @return the Job ID. This can be used in calls to getJobStatus() to fetch
+	 *         the completion status of the request.
+	 * @throws IOException
+	 * @throws RuntimeException
+	 */
+	protected String httpPost(String request, JsonObject body) throws IOException, RuntimeException {
+		String host = getKieRESTUrl();
+		URL url = new URL(host + "/" + request);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setDoOutput(true);
+		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Content-Type", "application/json");
+		String creds = getUsername() + ":" + getPassword();
+		conn.setRequestProperty("Authorization", "Basic " + Base64Util.encode(creds));
+
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		Writer writer = new OutputStreamWriter(bos, "UTF-8");
+//		body.writeTo(writer);
+//		writer.close();
+//
+//		String s = bos.toString();
+
+		java.io.OutputStream os = conn.getOutputStream();
+		Writer writer = new OutputStreamWriter(os, "UTF-8");
+		body.writeTo(writer);
+		writer.close();
+//		os.write(bos.toString().getBytes());
+		os.flush();
+
+		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
+
+		if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
+			throw new IOException("HTTP POST failed : HTTP error code : " + conn.getResponseCode());
+		}
+
+		JsonObject jo = JsonObject.readFrom(response);
+		String status = jo.get("status").asString();
+		if (status != null && !status.isEmpty()) {
+			if (!"APPROVED".equals(status))
+				throw new IOException("HTTP POST failed : Request status code : " + status);
+		}
+		String jobId = jo.get("jobId").asString();
+		if (jobId != null && !jobId.isEmpty())
+			return jobId;
+
+		return response;
 	}
-	
-	// TODO: fetch from Preferences
+
+	/**
+	 * Sends a job status request to the KIE Server.
+	 * 
+	 * @param jobId - the job ID from a previous HTTP POST or DELETE request
+	 * @return a string composed of a status word (e.g. "SUCCESS" or
+	 *         "BAD_REQUEST") followed by a colon delimiter and a detailed
+	 *         message.
+	 * @throws IOException
+	 */
+	public String getJobStatus(String jobId) throws IOException, InterruptedException {
+		final String[] ret = new String[]{null};
+		
+		IWorkbench wb = PlatformUI.getWorkbench();
+		IProgressService ps = wb.getProgressService();
+		try {
+			ps.busyCursorWhile(new IRunnableWithProgress() {
+				public void run(IProgressMonitor pm) throws InterruptedException {
+					pm.beginTask("Job Status for "+jobId, STATUS_REQUEST_TIMEOUT);
+					long startTime = System.currentTimeMillis();
+					long stopTime = startTime;
+					do {
+						try {
+							// send a Job Status request every STATUS_REQUEST_DELAY milliseconds
+							Thread.sleep(STATUS_REQUEST_DELAY);
+							String response = httpGet("jobs/" + jobId);
+							JsonObject jo = JsonObject.readFrom(response);
+							String status = jo.get("status").asString();
+							String result = jo.get("result").asString();
+							if (status!=null && result!=null)
+								ret[0] = status + ":" + result;
+							stopTime = System.currentTimeMillis();
+							pm.worked(STATUS_REQUEST_DELAY);
+						}
+						catch (Exception e) { }
+						if (pm.isCanceled())
+							throw new InterruptedException("Operation canceled");
+					}
+					while (ret[0]==null && stopTime - startTime < STATUS_REQUEST_TIMEOUT);
+					pm.done();
+					System.out.println("Request completed in "+ (stopTime - startTime) / 1000.0 + " sec");
+				}
+			});
+		}
+		catch (InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return ret[0];
+	}
+
 	public String getUsername() {
 		return handler.getPreference(PREF_SERVER_USERNAME, "admin");
 	}
-	
-	// TODO: fetch from Preferences
+
 	public String getPassword() {
 		return handler.getPreference(PREF_SERVER_PASSWORD, "admin");
 	}
-	
-	// TODO: fetch from Preferences
+
 	public int getGitPort() {
 		return handler.getPreference(PREF_SERVER_GIT_PORT, 8001);
 	}
-	
+
 	public String getKieApplication() {
-		if (kieApplication==null) {
+		if (kieApplication == null) {
 			String app = handler.getPreference(PREF_SERVER_KIE_APPLICATION_NAME, null);
-			if (app!=null) {
+			if (app != null) {
 				try {
 					kieApplication = app;
-					System.out.print("Trying "+getKieRESTUrl()+"...");
+					System.out.print("Trying " + getKieRESTUrl() + "...");
 					httpGet("organizationalunits");
 					System.out.println("success!");
 				}
@@ -119,13 +230,13 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 					kieApplication = null;
 				}
 			}
-			
-			if (kieApplication==null) {
+
+			if (kieApplication == null) {
 				// try to determine the HTTP URL from standard application names
 				for (String s : kieApplicationNames) {
 					try {
 						kieApplication = s;
-						System.out.print("Trying "+getKieRESTUrl()+"...");
+						System.out.print("Trying " + getKieRESTUrl() + "...");
 						httpGet("organizationalunits");
 						handler.putPreference(PREF_SERVER_KIE_APPLICATION_NAME, s);
 						System.out.println("success!");
@@ -137,9 +248,6 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 					}
 				}
 			}
-			if (kieApplication==null) {
-				kieApplication = "kie-wb";
-			}
 		}
 		return kieApplication;
 	}
@@ -149,12 +257,12 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	}
 
 	public int getHttpPort() {
-		if (httpPort==-1) {
+		if (httpPort == -1) {
 			// find the HTTP port for this server. Note that the JBossServer
 			// implementation of Server does not support getServerPorts()!
 			Object o = getServer().getAdapter(JBossServer.class);
 			if (o instanceof JBossServer) {
-				httpPort = ((JBossServer)o).getJBossWebPort();
+				httpPort = ((JBossServer) o).getJBossWebPort();
 			}
 			else {
 				// assume that Server.getServerPorts() actually works!
@@ -166,7 +274,7 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 					}
 				}
 			}
-			if (httpPort==-1) {
+			if (httpPort == -1) {
 				// assume that it's 8080
 				return handler.getPreference(PREF_SERVER_HTTP_PORT, 8080);
 			}
@@ -177,12 +285,8 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	public void setHttpPort(int httpPort) {
 		this.httpPort = httpPort;
 	}
-	
+
 	protected String getKieRESTUrl() {
-		return "http://" + 
-				getServer().getHost() + ":" + 
-				getHttpPort() + "/" + 
-				getKieApplication() + 
-				"/rest";
+		return "http://" + getServer().getHost() + ":" + getHttpPort() + "/" + getKieApplication() + "/rest";
 	}
 }

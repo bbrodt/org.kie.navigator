@@ -18,11 +18,13 @@ import java.util.List;
 import org.eclipse.wst.server.core.IServer;
 import org.osgi.service.prefs.Preferences;
 
+import com.eclipsesource.json.JsonObject;
+
 /**
  *
  */
 public interface IKieResourceHandler {
-	public final static String PATH_SEPARATOR = "|";
+	public final static String PREF_PATH_SEPARATOR = "|";
 	public final static String CANONICAL_NAME_PATTERN = "[^A-Za-z0-9_.,]";
 	public final static String CANONICAL_NAME_REPLACEMENT = "_";
 
@@ -34,6 +36,8 @@ public interface IKieResourceHandler {
 	IKieServiceDelegate getDelegate();
 	Object load();
 	boolean isLoaded();
+	public void setProperties(JsonObject properties);
+	public JsonObject getProperties();
 	List<? extends IKieResourceHandler> getChildren() throws Exception;
 	String getRuntimeId();
 	String getPreferenceName(String name);

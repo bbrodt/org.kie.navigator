@@ -24,6 +24,10 @@ import org.eclipse.wst.server.core.IServer;
 public interface IKieServiceDelegate {
 
 	public final static String KIE_SERVICE_IMPL_ID = "org.kie.eclipse.navigator.serviceImpl";
+	
+	public final static String JOB_STATUS_SUCCESS = "SUCCESS";
+	public final static String JOB_STATUS_BAD_REQUEST = "BAD_REQUEST";
+	
 
 	void setServer(IServer server);
 	IServer getServer();
@@ -34,6 +38,8 @@ public interface IKieServiceDelegate {
 	List<IKieOrganization> getOrganizations(IKieServer service) throws IOException;
 	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
 	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
+
+	void createOrganization(IKieServer service, IKieOrganization organization) throws IOException;
 
 	String getUsername();
 	String getPassword();

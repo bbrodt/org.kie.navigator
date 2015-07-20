@@ -23,6 +23,8 @@ public class ErrorNode extends ContentNode<IContainerNode<?>> implements IErrorN
 
     public static final String ERROR_TYPE = "error"; //$NON-NLS-1$
     private final String text;
+    private Exception exception;
+    
     private final static class ErrorHandler extends KieResourceHandler {
     	public ErrorHandler(String text) {
     		super(null,text);
@@ -40,6 +42,12 @@ public class ErrorNode extends ContentNode<IContainerNode<?>> implements IErrorN
     protected ErrorNode(IContainerNode<?> container, String text) {
         super(container, new ErrorHandler(text));
         this.text = text;
+    }
+    
+    protected ErrorNode(IContainerNode<?> container, Exception exception) {
+        super(container, new ErrorHandler("Error"));
+        this.text = "Error";
+        this.exception = exception;
     }
 
     public String getText() {
