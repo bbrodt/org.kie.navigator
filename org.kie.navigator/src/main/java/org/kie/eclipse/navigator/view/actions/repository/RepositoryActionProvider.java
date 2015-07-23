@@ -2,6 +2,7 @@ package org.kie.eclipse.navigator.view.actions.repository;
 
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorActionProvider;
+import org.kie.eclipse.navigator.view.actions.ShowGitRepoViewAction;
 
 public class RepositoryActionProvider extends KieNavigatorActionProvider {
 
@@ -13,5 +14,6 @@ public class RepositoryActionProvider extends KieNavigatorActionProvider {
 		addAction(new ImportRepositoryAction(aSite.getStructuredViewer()));
 		addAction(new DeleteRepositoryAction(aSite.getStructuredViewer()));
 		addAction(new CreateProjectAction(aSite.getStructuredViewer()));
+        addAction(new ShowGitRepoViewAction(aSite.getStructuredViewer()));
 	}
 }

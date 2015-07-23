@@ -1,4 +1,4 @@
-package org.kie.eclipse.navigator.view.actions.server;
+package org.kie.eclipse.navigator.view.actions.organization;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -14,14 +14,10 @@ import org.kie.eclipse.navigator.view.server.KieOrganization;
 
 import com.eclipsesource.json.JsonObject;
 
-public class CreateOrganizationAction extends KieNavigatorAction {
+public class RemoveOrganizationAction extends KieNavigatorAction {
 
-	protected CreateOrganizationAction(ISelectionProvider provider, String text) {
-		super(provider, text);
-	}
-	
-	public CreateOrganizationAction(ISelectionProvider selectionProvider) {
-		this(selectionProvider, "Create Organization...");
+	public RemoveOrganizationAction(ISelectionProvider provider) {
+		super(provider, "Remove Organization...");
 	}
 
 	public void run() {
@@ -32,7 +28,7 @@ public class CreateOrganizationAction extends KieNavigatorAction {
         IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
         IKieServer server = (IKieServer) container.getHandler();
         IKieServiceDelegate delegate = container.getHandler().getDelegate();
-        
+
         OrganizationRequestDialog dlg = new OrganizationRequestDialog(getShell(), server);
         
         if (dlg.open()==Window.OK) {
@@ -51,5 +47,5 @@ public class CreateOrganizationAction extends KieNavigatorAction {
             	MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e.getMessage());
             }
         }
-    }
+	}
 }

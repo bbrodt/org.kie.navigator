@@ -6,7 +6,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.kie.eclipse.navigator.view.actions.organization.OrganizationActionProvider;
 
 public class ShowGitRepoViewAction extends KieNavigatorAction {
 	

@@ -180,6 +180,20 @@ public class Kie60Service extends KieServiceDelegate {
 
 	@Override
 	public void deleteOrganization(IKieOrganization organization) throws IOException {
+		String jobId;
+		jobId = httpDelete("/organizationalunits/" + organization.getName());
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to delete Organization '"+organization.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to delete Organization '"+organization.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to delete Organization '"+organization.getName()+"' was canceled");
+		}
 	}
 
 	@Override
