@@ -37,9 +37,17 @@ public interface IKieServiceDelegate {
 	
 	List<IKieOrganization> getOrganizations(IKieServer service) throws IOException;
 	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
+	List<IKieRepository> getRepositories(IKieServer server) throws IOException;
 	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
 
-	void createOrganization(IKieServer service, IKieOrganization organization) throws IOException;
+	void createOrganization(IKieOrganization organization) throws IOException;
+	void createRepository(IKieRepository repository) throws IOException;
+	void addRepository(IKieRepository repository, IKieOrganization organization) throws IOException;
+	void createProject(IKieProject project) throws IOException;
+
+	void deleteOrganization(IKieOrganization organization) throws IOException;
+	void deleteRepository(IKieRepository repository, boolean removeOnly) throws IOException;
+	void deleteProject(IKieProject project) throws IOException;
 
 	String getUsername();
 	String getPassword();

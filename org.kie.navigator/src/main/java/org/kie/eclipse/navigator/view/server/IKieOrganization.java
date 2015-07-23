@@ -15,10 +15,11 @@ package org.kie.eclipse.navigator.view.server;
 
 import java.util.List;
 
-import org.eclipse.wst.server.core.IServer;
 
 /**
  *
  */
 public interface IKieOrganization extends IKieResourceHandler {
+
+	List<IKieRepository> getRepositories() throws Exception;
 }

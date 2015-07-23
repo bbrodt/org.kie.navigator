@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.navigator.CommonActionProvider;
 
 public class KieNavigatorActionProvider extends CommonActionProvider {
@@ -31,5 +32,9 @@ public class KieNavigatorActionProvider extends CommonActionProvider {
         }
     	actions.clear();
         super.dispose();
+    }
+    
+    protected Shell getShell() {
+    	return getActionSite().getViewSite().getShell();
     }
 }

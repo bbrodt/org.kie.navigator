@@ -120,21 +120,6 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 	 */
 	@Override
 	public List<IKieOrganization> getOrganizations() throws IOException {
-//		List<IKieOrganization> result = new ArrayList<IKieOrganization>();
-//		if (isServerRunning()) {
-//			// fetch from server and synch if needed
-//			result = getDelegate().getOrganizations();
-//		}
-//		else {
-//			// fetch from preference store
-//			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-//			String value =  store.getString(getKieOrganizationsPreferenceKey());
-//			for (String v : value.split("|")) {
-//				IKieOrganization org = new KieOrganization(server, v);
-//				result.add(org);
-//			}
-//		}
-//		return result;
 		return getDelegate().getOrganizations(this);
 	}
 

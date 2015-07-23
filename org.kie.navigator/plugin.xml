@@ -116,7 +116,7 @@
 		</actionProvider>
 		
 		<actionProvider
-			class="org.kie.eclipse.navigator.view.actions.ServerActionProvider"
+			class="org.kie.eclipse.navigator.view.actions.server.ServerActionProvider"
 			id="org.kie.eclipse.navigator.view.content.server">
 			<enablement>
 				<instanceof value="org.kie.eclipse.navigator.view.content.ServerNode">
@@ -125,7 +125,7 @@
 		</actionProvider>
 		
 		<actionProvider
-			class="org.kie.eclipse.navigator.view.actions.OrganizationActionProvider"
+			class="org.kie.eclipse.navigator.view.actions.organization.OrganizationActionProvider"
 			id="org.kie.eclipse.navigator.view.content.organization">
 			<enablement>
 				<instanceof value="org.kie.eclipse.navigator.view.content.OrganizationNode">
@@ -134,7 +134,7 @@
 		</actionProvider>
 		
 		<actionProvider
-			class="org.kie.eclipse.navigator.view.actions.RepositoryActionProvider"
+			class="org.kie.eclipse.navigator.view.actions.repository.RepositoryActionProvider"
 			id="org.kie.eclipse.navigator.view.content.repository">
 			<enablement>
 				<instanceof value="org.kie.eclipse.navigator.view.content.RepositoryNode">
@@ -143,7 +143,7 @@
 		</actionProvider>
 		
 		<actionProvider
-			class="org.kie.eclipse.navigator.view.actions.ProjectActionProvider"
+			class="org.kie.eclipse.navigator.view.actions.project.ProjectActionProvider"
 			id="org.kie.eclipse.navigator.view.content.project">
 			<enablement>
 				<instanceof value="org.kie.eclipse.navigator.view.content.ProjectNode">

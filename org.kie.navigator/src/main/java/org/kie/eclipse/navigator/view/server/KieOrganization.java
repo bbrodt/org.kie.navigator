@@ -34,4 +34,8 @@ public class KieOrganization extends KieResourceHandler implements IKieOrganizat
 	public boolean isLoaded() {
 		return true;
 	}
+	
+	public List<IKieRepository> getRepositories() throws Exception {
+		return (List<IKieRepository>) getChildren();
+	}
 }

@@ -16,11 +16,18 @@ Require-Bundle: org.eclipse.ui,
  org.jboss.tools.jmx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.debug.core,
+Import-Package: com.jcraft.jsch,
+ org.eclipse.debug.core,
  org.eclipse.egit.core,
  org.eclipse.egit.core.op,
  org.eclipse.egit.core.project,
+ org.eclipse.egit.core.securestorage,
  org.eclipse.egit.ui,
+ org.eclipse.jgit.api,
+ org.eclipse.jgit.errors,
  org.eclipse.jgit.events,
+ org.eclipse.jgit.internal.storage.file,
  org.eclipse.jgit.lib,
- org.eclipse.jgit.util
+ org.eclipse.jgit.transport,
+ org.eclipse.jgit.util,
+ org.eclipse.ui.wizards.newresource

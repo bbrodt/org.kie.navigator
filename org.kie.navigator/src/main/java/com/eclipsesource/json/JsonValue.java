@@ -181,6 +181,26 @@ public abstract class JsonValue implements Serializable {
     return value ? TRUE : FALSE;
   }
 
+  public static JsonValue valueOf( Object object ) {
+	    if (object != null) {
+		    Class c = object.getClass();
+		    if (String.class.equals(c))
+		    	return valueOf( (String) object );
+		    if (Integer.class.equals(c) || int.class.equals(c))
+		    	return valueOf( (int) object );
+		    if (Double.class.equals(c) || double.class.equals(c))
+		    	return valueOf( (double) object );
+		    if (Float.class.equals(c) || float.class.equals(c))
+		    	return valueOf( (float) object );
+		    if (Boolean.class.equals(c) || boolean.class.equals(c))
+		    	return valueOf( (boolean) object );
+		    if (Long.class.equals(c) || long.class.equals(c))
+		    	return valueOf( (long) object );
+		    throw new IllegalArgumentException("Unsupported object type in JsonValue.valueOf : "+c.getName());
+	    }
+	    return NULL;
+	  }
+
   /**
    * Detects whether this value represents a JSON object. If this is the case, this value is an
    * instance of {@link JsonObject}.

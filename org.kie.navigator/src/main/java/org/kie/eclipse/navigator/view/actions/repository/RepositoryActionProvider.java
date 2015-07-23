@@ -1,0 +1,17 @@
+package org.kie.eclipse.navigator.view.actions.repository;
+
+import org.eclipse.ui.navigator.ICommonActionExtensionSite;
+import org.kie.eclipse.navigator.view.actions.KieNavigatorActionProvider;
+
+public class RepositoryActionProvider extends KieNavigatorActionProvider {
+
+	public RepositoryActionProvider() {
+	}
+
+	public void init(ICommonActionExtensionSite aSite) {
+		super.init(aSite);
+		addAction(new ImportRepositoryAction(aSite.getStructuredViewer()));
+		addAction(new DeleteRepositoryAction(aSite.getStructuredViewer()));
+		addAction(new CreateProjectAction(aSite.getStructuredViewer()));
+	}
+}

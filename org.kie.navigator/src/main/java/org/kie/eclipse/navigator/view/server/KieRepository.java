@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.egit.core.RepositoryCache;
-import org.eclipse.egit.ui.UIUtils;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jgit.events.ConfigChangedEvent;
 import org.eclipse.jgit.events.ConfigChangedListener;
@@ -35,6 +34,7 @@ import org.eclipse.jgit.util.FS;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.kie.eclipse.navigator.IKieNavigatorConstants;
+import org.kie.eclipse.navigator.preferences.PreferencesUtils;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -54,30 +54,19 @@ public class KieRepository extends KieResourceHandler implements IKieRepository,
 	public KieRepository(IKieOrganization organization, String name) {
 		super(organization, name);
 	}
+
+	public KieRepository(IKieServer server, String name) {
+		super(server, name);
+	}
 	
 	@Override
 	public List<? extends IKieResourceHandler> getChildren() throws Exception {
 		return getDelegate().getProjects(this);
 	}
 	
-	private String getRepoPath() {
-        boolean useDefaultGitPath = getRoot().getPreference(PREF_USE_DEFAULT_GIT_PATH, false);
-		String defaultRepoPath = UIUtils.getDefaultRepositoryDir();
-		String repoPath;
-		if (useDefaultGitPath) {
-			repoPath = defaultRepoPath;
-		}
-		else
-		{
-			defaultRepoPath += File.separator + parent.getPreferenceName(null).replace(PREF_PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
-			repoPath = parent.getPreference(PREF_GIT_REPO_PATH, defaultRepoPath);
-		}
-		return repoPath;
-	}
-	
 	public Object load() {
 		if (repository == null) {
-			String repoPath = getRepoPath();
+			String repoPath = PreferencesUtils.getRepoPath(this);
 			
 			final File repoRoot = new File(repoPath);
 			final Set<File> gitDirs = new HashSet<File>();

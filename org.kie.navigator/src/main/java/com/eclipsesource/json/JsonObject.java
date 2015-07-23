@@ -456,6 +456,11 @@ public class JsonObject extends JsonValue implements Iterable<Member> {
     return this;
   }
 
+  public JsonObject set( String name, Object value ) {
+	    set( name, valueOf( value ) );
+	    return this;
+	  }
+
   /**
    * Sets the value of the member with the specified name to the specified JSON value. If this
    * object does not contain a member with this name, a new member is added at the end of the

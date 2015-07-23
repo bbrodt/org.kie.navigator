@@ -94,8 +94,39 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 		return response;
 	}
 
+	/**
+	 * Send an HTTP DELETE request to the KIE console.
+	 * @param request - the request URL fragment; see the Drools REST API
+	 *            documentation for details
+	 * @return the Job ID. This can be used in calls to getJobStatus() to fetch
+	 *         the completion status of the request.
+	 * @throws IOException
+	 */
 	protected String httpDelete(String request) throws IOException {
-		return "";
+		String host = getKieRESTUrl();
+		URL url = new URL(host + "/" + request);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("DELETE");
+		conn.setRequestProperty("Content", "application/json");
+		String creds = getUsername() + ":" + getPassword();
+		conn.setRequestProperty("Authorization", "Basic " + Base64Util.encode(creds));
+		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
+
+		if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
+			throw new IOException("HTTP POST failed : HTTP error code : " + conn.getResponseCode());
+		}
+
+		JsonObject jo = JsonObject.readFrom(response);
+		String status = jo.get("status").asString();
+		if (status != null && !status.isEmpty()) {
+			if (!"APPROVED".equals(status))
+				throw new IOException("HTTP POST failed : Request status code : " + status);
+		}
+		String jobId = jo.get("jobId").asString();
+		if (jobId != null && !jobId.isEmpty())
+			return jobId;
+
+		return response;
 	}
 
 	/**
@@ -113,26 +144,20 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 		String host = getKieRESTUrl();
 		URL url = new URL(host + "/" + request);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setDoOutput(true);
+		conn.setDoOutput(body!=null);
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-Type", "application/json");
 		String creds = getUsername() + ":" + getPassword();
 		conn.setRequestProperty("Authorization", "Basic " + Base64Util.encode(creds));
 
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		Writer writer = new OutputStreamWriter(bos, "UTF-8");
-//		body.writeTo(writer);
-//		writer.close();
-//
-//		String s = bos.toString();
-
-		java.io.OutputStream os = conn.getOutputStream();
-		Writer writer = new OutputStreamWriter(os, "UTF-8");
-		body.writeTo(writer);
-		writer.close();
-//		os.write(bos.toString().getBytes());
-		os.flush();
-
+		if (body!=null) {
+			java.io.OutputStream os = conn.getOutputStream();
+			Writer writer = new OutputStreamWriter(os, "UTF-8");
+			body.writeTo(writer);
+			writer.close();
+			os.flush();
+		}
+		
 		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
 
 		if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
@@ -180,12 +205,21 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 							JsonObject jo = JsonObject.readFrom(response);
 							String status = jo.get("status").asString();
 							String result = jo.get("result").asString();
+							if ("null".equals(result)) {
+								if (!"SUCCESS".equals(status))
+									result = null;
+							}
 							if (status!=null && result!=null)
 								ret[0] = status + ":" + result;
 							stopTime = System.currentTimeMillis();
 							pm.worked(STATUS_REQUEST_DELAY);
+							
+							System.out.println("status="+status);
+							System.out.println("result="+result);
 						}
-						catch (Exception e) { }
+						catch (Exception e) {
+							e.printStackTrace();
+						}
 						if (pm.isCanceled())
 							throw new InterruptedException("Operation canceled");
 					}

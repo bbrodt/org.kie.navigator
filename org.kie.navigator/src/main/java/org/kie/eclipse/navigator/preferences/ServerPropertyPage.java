@@ -3,6 +3,7 @@ package org.kie.eclipse.navigator.preferences;
 import java.io.File;
 
 import org.eclipse.egit.ui.UIUtils;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -13,7 +14,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.wst.server.core.IServer;
 import org.kie.eclipse.navigator.IKieNavigatorConstants;
-import org.kie.eclipse.navigator.view.server.IKieResourceHandler;
 
 public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieNavigatorConstants {
 
@@ -33,6 +33,7 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		StringFieldEditor stringEditor;
 		PasswordStringFieldEditor passwordEditor;
 		IntegerFieldEditor intEditor;
+		BooleanFieldEditor boolEditor;
 		
 		
 		stringEditor = new StringFieldEditor(PREF_SERVER_USERNAME, "Username:", getFieldEditorParent());
@@ -40,6 +41,9 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		
 		passwordEditor = new PasswordStringFieldEditor(PREF_SERVER_PASSWORD, "Password:", getFieldEditorParent());
 		addField(passwordEditor);
+		
+		boolEditor = new MessageDialogToggleFieldEditor(PREF_SERVER_TRUSTED_CONNECTION, "Trust connections to this Server", getFieldEditorParent());
+		addField(boolEditor);
 		
 		stringEditor = new StringFieldEditor(PREF_SERVER_KIE_APPLICATION_NAME, "KIE Application Name:", getFieldEditorParent());
 		addField(stringEditor);
@@ -49,7 +53,7 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		
 		intEditor = new IntegerFieldEditor(PREF_SERVER_GIT_PORT, "Git Port:", getFieldEditorParent());
 		addField(intEditor);
-		
+
 		useDefaultGitPathEditor = new BooleanFieldEditor(PREF_USE_DEFAULT_GIT_PATH, "Use default Git Repository Path", getFieldEditorParent());
 		addField(useDefaultGitPathEditor);
 		
@@ -65,7 +69,7 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		
 		if (!checked && gitPathEditor.getStringValue().isEmpty()) {
 			String defaultRepoPath = UIUtils.getDefaultRepositoryDir();
-			String repoPath = getResourceHandler().getPreferenceName(null).replace(IKieResourceHandler.PREF_PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
+			String repoPath = getResourceHandler().getPreferenceName(null).replace(IKieNavigatorConstants.PREF_PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
 			if (defaultRepoPath!=null)
 				defaultRepoPath += File.separator + repoPath;
 			else
@@ -102,5 +106,49 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		public void refreshValidState() {
 			super.refreshValidState();
 		}
+	}
+	
+	private static class MessageDialogToggleFieldEditor extends BooleanFieldEditor {
+
+		private Composite parent;
+		
+		public MessageDialogToggleFieldEditor(String name, String label, Composite parent) {
+			super(name, label, parent);
+			this.parent = parent;
+		}
+		
+		@Override
+		protected void doLoad() {
+			Button checkBox = getChangeControl(parent);
+			if (checkBox != null) {
+				String value = getPreferenceStore().getString(getPreferenceName());
+				checkBox.setSelection(MessageDialogWithToggle.ALWAYS.equals(value));
+			}
+		}
+
+		/*
+		 * (non-Javadoc) Method declared on FieldEditor. Loads the default value
+		 * from the preference store and sets it to the check box.
+		 */
+		@Override
+		protected void doLoadDefault() {
+			Button checkBox = getChangeControl(parent);
+			if (checkBox != null) {
+				String value = getPreferenceStore().getDefaultString(getPreferenceName());
+				checkBox.setSelection(MessageDialogWithToggle.ALWAYS.equals(value));
+			}
+		}
+
+		/*
+		 * (non-Javadoc) Method declared on FieldEditor.
+		 */
+		@Override
+		protected void doStore() {
+			Button checkBox = getChangeControl(parent);
+			getPreferenceStore().setValue(
+					getPreferenceName(),
+					checkBox.getSelection() ? MessageDialogWithToggle.ALWAYS : MessageDialogWithToggle.NEVER);
+		}
+
 	}
 }

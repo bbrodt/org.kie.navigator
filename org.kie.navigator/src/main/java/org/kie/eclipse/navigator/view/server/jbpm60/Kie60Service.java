@@ -84,6 +84,20 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 		return result;
 	}
+	@Override
+	public List<IKieRepository> getRepositories(IKieServer server) throws IOException {
+		List<IKieRepository> result = new ArrayList<IKieRepository>();
+
+		String response = httpGet("repositories");
+		JsonArray ja1 = JsonArray.readFrom(response);
+		for (int i=0; i<ja1.size(); ++i) {
+			JsonObject jo = ja1.get(i).asObject();
+			KieRepository kr = new KieRepository(server, jo.get("name").asString());
+			kr.setProperties(jo);
+			result.add(kr);
+		}
+		return result;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.kie.eclipse.navigator.view.server.IKieServiceImpl#getProjects(org.kie.eclipse.navigator.view.server.IKieOrganization, org.kie.eclipse.navigator.view.server.IKieRepository)
@@ -111,8 +125,7 @@ public class Kie60Service extends KieServiceDelegate {
 	}
 	
 	@Override
-	public void createOrganization(IKieServer service, IKieOrganization organization) throws IOException {
-		// TODO: use a ProgressMonitor here?
+	public void createOrganization(IKieOrganization organization) throws IOException {
 		final String jobId = httpPost("organizationalunits", organization.getProperties());
 		try {
 			String status = getJobStatus(jobId);
@@ -127,4 +140,76 @@ public class Kie60Service extends KieServiceDelegate {
 			throw new IOException("Request to create Organization '"+organization.getName()+"' was canceled");
 		}
 	}
+	
+	@Override
+	public void createRepository(IKieRepository repository) throws IOException {
+		final String jobId = httpPost("repositories", repository.getProperties());
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to create Repository '"+repository.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to create Repository '"+repository.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to create Repository '"+repository.getName()+"' was canceled");
+		}
+	}
+	
+	public void addRepository(IKieRepository repository, IKieOrganization organization) throws IOException {
+		String jobId = httpPost("/organizationalunits/" + organization.getName() + "/repositories/"+repository.getName(), null);
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to add Repository '"+repository.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to add Repository '"+repository.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to add Repository '"+repository.getName()+"' was canceled");
+		}
+	}
+
+	@Override
+	public void createProject(IKieProject project) throws IOException {
+	}
+
+	@Override
+	public void deleteOrganization(IKieOrganization organization) throws IOException {
+	}
+
+	@Override
+	public void deleteRepository(IKieRepository repository, boolean removeOnly) throws IOException {
+		String jobId;
+		if (removeOnly) {
+			// only remove the repo from its organizational unit
+			String organization = repository.getParent().getName();
+			jobId = httpDelete("/organizationalunits/" + organization + "/repositories/"+repository.getName());
+		}
+		else {
+			// completely obliterate the repository
+			jobId = httpDelete("repositories/"+repository.getName());
+		}
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to delete Repository '"+repository.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to delete Repository '"+repository.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to delete Repository '"+repository.getName()+"' was canceled");
+		}
+	}
+
+	@Override
+	public void deleteProject(IKieProject project) throws IOException {
+	}
+
 }

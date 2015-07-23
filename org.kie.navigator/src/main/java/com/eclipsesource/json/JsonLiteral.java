@@ -33,6 +33,11 @@ class JsonLiteral extends JsonValue {
   }
 
   @Override
+  public String asString() {
+	  return value;
+  }
+
+  @Override
   public boolean asBoolean() {
     return isBoolean() ? isTrue() : super.asBoolean();
   }

@@ -24,10 +24,6 @@ import com.eclipsesource.json.JsonObject;
  *
  */
 public interface IKieResourceHandler {
-	public final static String PREF_PATH_SEPARATOR = "|";
-	public final static String CANONICAL_NAME_PATTERN = "[^A-Za-z0-9_.,]";
-	public final static String CANONICAL_NAME_REPLACEMENT = "_";
-
 	String getName();
 	IServer getServer();
 	IKieResourceHandler getParent();
