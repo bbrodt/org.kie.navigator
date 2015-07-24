@@ -20,12 +20,12 @@ public class DeleteRepositoryAction extends KieNavigatorAction {
 	}
 
 	public DeleteRepositoryAction(ISelectionProvider selectionProvider) {
-		this(selectionProvider, "Remove Repository");
+		this(selectionProvider, "Remove Repository...");
 	}
 
 	@Override
 	public String getToolTipText() {
-		return "Remove this Git Repository from the Organizational Unit";
+		return "Remove this Git Repository from the Organizational Unit and optionally delete the Repository";
 	}
 
 	public void run() {
@@ -42,8 +42,9 @@ public class DeleteRepositoryAction extends KieNavigatorAction {
 			IKieServiceDelegate delegate = container.getHandler().getDelegate();
 			try {
 				delegate.deleteRepository((IKieRepository) container.getHandler(), !dlg.getToggleState());
-				container.getParent().clearChildren();
-				container.getNavigator().getCommonViewer().refresh(container.getParent());
+				container = container.getParent();
+				container.clearChildren();
+				container.getNavigator().getCommonViewer().refresh(container);
 			}
 			catch (IOException e) {
 				e.printStackTrace();

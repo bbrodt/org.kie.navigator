@@ -35,8 +35,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.kie.eclipse.navigator.IKieNavigatorConstants;
 import org.kie.eclipse.navigator.preferences.PreferencesUtils;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 
 /**
  *
@@ -62,6 +60,11 @@ public class KieRepository extends KieResourceHandler implements IKieRepository,
 	@Override
 	public List<? extends IKieResourceHandler> getChildren() throws Exception {
 		return getDelegate().getProjects(this);
+	}
+	
+	@Override
+	public List<IKieProject> getProjects() throws Exception {
+		return (List<IKieProject>) getChildren();
 	}
 	
 	public Object load() {

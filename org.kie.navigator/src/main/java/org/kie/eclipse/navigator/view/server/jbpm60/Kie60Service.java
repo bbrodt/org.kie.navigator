@@ -84,6 +84,10 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 		return result;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#getRepositories(org.kie.eclipse.navigator.view.server.IKieServer)
+	 */
 	@Override
 	public List<IKieRepository> getRepositories(IKieServer server) throws IOException {
 		List<IKieRepository> result = new ArrayList<IKieRepository>();
@@ -124,6 +128,9 @@ public class Kie60Service extends KieServiceDelegate {
 		return result;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#createOrganization(org.kie.eclipse.navigator.view.server.IKieOrganization)
+	 */
 	@Override
 	public void createOrganization(IKieOrganization organization) throws IOException {
 		final String jobId = httpPost("organizationalunits", organization.getProperties());
@@ -141,6 +148,9 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#createRepository(org.kie.eclipse.navigator.view.server.IKieRepository)
+	 */
 	@Override
 	public void createRepository(IKieRepository repository) throws IOException {
 		final String jobId = httpPost("repositories", repository.getProperties());
@@ -158,8 +168,11 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#addRepository(org.kie.eclipse.navigator.view.server.IKieRepository, org.kie.eclipse.navigator.view.server.IKieOrganization)
+	 */
 	public void addRepository(IKieRepository repository, IKieOrganization organization) throws IOException {
-		String jobId = httpPost("/organizationalunits/" + organization.getName() + "/repositories/"+repository.getName(), null);
+		String jobId = httpPost("organizationalunits/" + organization.getName() + "/repositories/"+repository.getName(), null);
 		try {
 			String status = getJobStatus(jobId);
 			
@@ -174,14 +187,33 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#createProject(org.kie.eclipse.navigator.view.server.IKieProject)
+	 */
 	@Override
 	public void createProject(IKieProject project) throws IOException {
+		String jobId = httpPost("repositories/" + project.getParent().getName() + "/projects/", project.getProperties());
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to create Project '"+project.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to create Project '"+project.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to create Project '"+project.getName()+"' was canceled");
+		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#deleteOrganization(org.kie.eclipse.navigator.view.server.IKieOrganization)
+	 */
 	@Override
 	public void deleteOrganization(IKieOrganization organization) throws IOException {
 		String jobId;
-		jobId = httpDelete("/organizationalunits/" + organization.getName());
+		jobId = httpDelete("organizationalunits/" + organization.getName());
 		try {
 			String status = getJobStatus(jobId);
 			
@@ -196,13 +228,16 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#deleteRepository(org.kie.eclipse.navigator.view.server.IKieRepository, boolean)
+	 */
 	@Override
 	public void deleteRepository(IKieRepository repository, boolean removeOnly) throws IOException {
 		String jobId;
 		if (removeOnly) {
 			// only remove the repo from its organizational unit
 			String organization = repository.getParent().getName();
-			jobId = httpDelete("/organizationalunits/" + organization + "/repositories/"+repository.getName());
+			jobId = httpDelete("organizationalunits/" + organization + "/repositories/"+repository.getName());
 		}
 		else {
 			// completely obliterate the repository
@@ -222,8 +257,25 @@ public class Kie60Service extends KieServiceDelegate {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.kie.eclipse.navigator.view.server.IKieServiceDelegate#deleteProject(org.kie.eclipse.navigator.view.server.IKieProject)
+	 */
 	@Override
 	public void deleteProject(IKieProject project) throws IOException {
+		String jobId;
+		jobId = httpDelete("repositories/" + project.getParent().getName() + "/projects/" + project.getName());
+		try {
+			String status = getJobStatus(jobId);
+			
+			if (status==null) {
+				throw new IOException("Request to delete project '"+project.getName()+"' has timed out");
+			}
+			if (!status.startsWith(JOB_STATUS_SUCCESS))
+				throw new IOException("Request to delete project '"+project.getName()+"' has failed with status "+status);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Request to delete project '"+project.getName()+"' was canceled");
+		}
 	}
 
 }

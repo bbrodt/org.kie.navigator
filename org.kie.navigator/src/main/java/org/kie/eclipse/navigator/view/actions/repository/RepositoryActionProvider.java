@@ -12,8 +12,8 @@ public class RepositoryActionProvider extends KieNavigatorActionProvider {
 	public void init(ICommonActionExtensionSite aSite) {
 		super.init(aSite);
 		addAction(new ImportRepositoryAction(aSite.getStructuredViewer()));
-		addAction(new DeleteRepositoryAction(aSite.getStructuredViewer()));
 		addAction(new CreateProjectAction(aSite.getStructuredViewer()));
+		addAction(new DeleteRepositoryAction(aSite.getStructuredViewer()));
         addAction(new ShowGitRepoViewAction(aSite.getStructuredViewer()));
 	}
 }

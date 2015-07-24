@@ -1,23 +1,20 @@
 package org.kie.eclipse.navigator.view.actions.organization;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
-import org.kie.eclipse.navigator.view.actions.dialogs.OrganizationRequestDialog;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
-import org.kie.eclipse.navigator.view.server.IKieServer;
+import org.kie.eclipse.navigator.view.server.IKieOrganization;
 import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
-import org.kie.eclipse.navigator.view.server.KieOrganization;
 
-import com.eclipsesource.json.JsonObject;
+public class DeleteOrganizationAction extends KieNavigatorAction {
 
-public class RemoveOrganizationAction extends KieNavigatorAction {
-
-	public RemoveOrganizationAction(ISelectionProvider provider) {
-		super(provider, "Remove Organization...");
+	public DeleteOrganizationAction(ISelectionProvider provider) {
+		super(provider, "Delete Organization...");
 	}
 
 	public void run() {
@@ -26,19 +23,16 @@ public class RemoveOrganizationAction extends KieNavigatorAction {
             return;
         }
         IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-        IKieServer server = (IKieServer) container.getHandler();
+        IKieOrganization organization = (IKieOrganization) container.getHandler();
         IKieServiceDelegate delegate = container.getHandler().getDelegate();
 
-        OrganizationRequestDialog dlg = new OrganizationRequestDialog(getShell(), server);
-        
-        if (dlg.open()==Window.OK) {
-        	JsonObject properties = dlg.getResult();
-        	String name = properties.get("name").asString();
-            KieOrganization organization = new KieOrganization(server, name);
-            organization.setProperties(properties);
-            
+        boolean doit = MessageDialog.openConfirm(
+				getShell(), "Delete Organizational Unit",
+				"Are you sure you want to delete the Organizational Unit " + container.getName() + "?");
+		if (doit) {
             try {
-            	delegate.createOrganization(organization);
+            	delegate.deleteOrganization(organization);
+            	container = container.getParent();
             	container.clearChildren();
             	container.getNavigator().getCommonViewer().refresh(container);
             }
