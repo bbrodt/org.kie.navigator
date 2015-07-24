@@ -1,23 +1,23 @@
 package org.kie.eclipse.navigator.view.actions.repository;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.wizards.IWizardDescriptor;
+import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
-import org.kie.eclipse.navigator.view.actions.dialogs.ProjectRequestDialog;
+import org.kie.eclipse.navigator.view.actions.dialogs.CreateProjectRequestDialog;
 import org.kie.eclipse.navigator.view.content.ContentNode;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
-import org.kie.eclipse.navigator.view.server.IKieProject;
-import org.kie.eclipse.navigator.view.server.IKieRepository;
+import org.kie.eclipse.navigator.view.server.IKieProjectHandler;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
 import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
-import org.kie.eclipse.navigator.view.server.KieProject;
-import org.kie.eclipse.navigator.view.server.KieRepository;
+import org.kie.eclipse.navigator.view.server.KieProjectHandler;
+import org.kie.eclipse.navigator.view.server.KieRepositoryHandler;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -38,51 +38,48 @@ public class CreateProjectAction extends KieNavigatorAction {
 
 	@Override
 	public boolean isEnabled() {
-		IStructuredSelection selection = getStructuredSelection();
-		if (selection != null && !selection.isEmpty()) {
-			IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-			if (container instanceof ContentNode) {
-				KieRepository handler = (KieRepository) ((ContentNode) container).getHandler();
-				if (handler == null || !handler.isLoaded())
-					return false;
-			}
+		IContainerNode<?> container = getContainer();
+		if (container instanceof ContentNode) {
+			KieRepositoryHandler handler = (KieRepositoryHandler) ((ContentNode) container).getHandler();
+			if (handler == null || !handler.isLoaded())
+				return false;
 		}
 		return true;
 	}
 
 	public void run() {
-		IStructuredSelection selection = getStructuredSelection();
-		if (selection == null || selection.isEmpty()) {
+		IContainerNode<?> container = getContainer();
+		if (container==null)
 			return;
-		}
-		IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-		IKieRepository repository = (IKieRepository) container.getHandler();
-        IKieServiceDelegate delegate = container.getHandler().getDelegate();
-        ProjectRequestDialog dlg = new ProjectRequestDialog(getShell(), repository);
+		
+		IKieRepositoryHandler repository = (IKieRepositoryHandler) container.getHandler();
+        IKieServiceDelegate delegate = getDelegate();
+        
+        CreateProjectRequestDialog dlg = new CreateProjectRequestDialog(getShell(), repository);
         
         if (dlg.open()==Window.OK) {
         	JsonObject properties = dlg.getResult();
         	String name = properties.get("name").asString();
-            IKieProject project = new KieProject(repository, name);
+            IKieProjectHandler project = new KieProjectHandler(repository, name);
             project.setProperties(properties);
 	        try {
 	        	delegate.createProject(project);
-	        	container = container.getParent();
-	        	container.clearChildren();
-	        	container.getNavigator().getCommonViewer().refresh(container);
+
+	        	refreshViewer(container.getParent());
+
+	            if (dlg.shouldStartProjectWizard()) {
+		    		BasicNewResourceWizard wizard = (BasicNewResourceWizard) createWizard("org.drools.eclipse.wizards.new.project");
+		    		wizard.init(PlatformUI.getWorkbench(), getStructuredSelection());
+		    		WizardDialog wd = new WizardDialog(Display.getDefault().getActiveShell(), wizard);
+		    		wd.setTitle(wizard.getWindowTitle());
+		    		int rtn = wd.open();
+		    		System.out.println(rtn);
+	            }
 	        }
 	        catch (Exception e) {
-	        	e.printStackTrace();
-	        	MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e.getMessage());
+	        	handleException(e);
 	        }
         }
-        
-//		BasicNewResourceWizard wizard = (BasicNewResourceWizard) createWizard("org.drools.eclipse.wizards.new.project");
-//		wizard.init(PlatformUI.getWorkbench(), selection);
-//		WizardDialog wd = new WizardDialog(Display.getDefault().getActiveShell(), wizard);
-//		wd.setTitle(wizard.getWindowTitle());
-//		int rtn = wd.open();
-//		System.out.println(rtn);
 	}
 
 	public IWizard createWizard(String id) {

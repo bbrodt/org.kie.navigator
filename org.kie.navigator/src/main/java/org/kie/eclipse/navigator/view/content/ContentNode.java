@@ -28,7 +28,9 @@ public abstract class ContentNode<T extends IContainerNode<?>> implements IConte
     }
 
     protected ContentNode(T container, IKieResourceHandler handler) {
-        this.parent = container instanceof IContainerNode ? (IContainerNode<?>) container : container.getParent();
+        this.parent = container instanceof IContainerNode ?
+        		(IContainerNode<?>) container :
+        			(container==null ? null : container.getParent());
         this.container = container;
         this.name = handler.getName();
         this.handler = handler;

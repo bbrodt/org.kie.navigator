@@ -27,6 +27,7 @@ public interface IKieResourceHandler {
 	String getName();
 	IServer getServer();
 	IKieResourceHandler getParent();
+	void setParent(IKieResourceHandler parent);
 	IKieResourceHandler getRoot();
 	void dispose();
 	IKieServiceDelegate getDelegate();

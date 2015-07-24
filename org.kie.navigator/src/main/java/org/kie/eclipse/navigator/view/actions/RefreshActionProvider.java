@@ -11,7 +11,6 @@
 package org.kie.eclipse.navigator.view.actions;
 
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
@@ -37,13 +36,11 @@ public class RefreshActionProvider extends KieNavigatorActionProvider {
         }
 
         public void run() {
-            IStructuredSelection selection = getStructuredSelection();
-            if (selection == null || selection.isEmpty()) {
-                return;
-            }
-            IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-            container.clearChildren();
-            getActionSite().getStructuredViewer().refresh(container);
+            IContainerNode<?> container = getContainer();
+            if (container==null)
+            	return;
+            
+            refreshViewer(container);
         }
 
     }

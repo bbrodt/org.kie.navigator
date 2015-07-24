@@ -101,6 +101,18 @@ public class JsonObject extends JsonValue implements Iterable<Member> {
     updateHashIndex();
   }
 
+  public void copyFrom(JsonObject object) {
+		if (object == null) {
+			throw new NullPointerException("object is null");
+		}
+		names.clear();
+		names.addAll(object.names);
+		values.clear();
+		values.addAll(object.values);
+		table = new HashIndexTable();
+		updateHashIndex();
+  }
+  
   /**
    * Reads a JSON object from the given reader.
    * <p>

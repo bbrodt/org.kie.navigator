@@ -6,32 +6,43 @@ import java.net.URISyntaxException;
 import org.eclipse.egit.ui.UIUtils;
 import org.eclipse.jgit.transport.URIish;
 import org.kie.eclipse.navigator.IKieNavigatorConstants;
-import org.kie.eclipse.navigator.view.server.IKieRepository;
-import org.kie.eclipse.navigator.view.server.IKieResourceHandler;
-import org.kie.eclipse.navigator.view.server.IKieServer;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
+import org.kie.eclipse.navigator.view.server.IKieServerHandler;
+import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
 
 public class PreferencesUtils implements IKieNavigatorConstants {
 
 	public PreferencesUtils() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public static String getRepoPath(IKieRepository repo) {
-		IKieServer server = (IKieServer) repo.getRoot();
+	public static String getRepoRoot(IKieRepositoryHandler repository) {
+		IKieServerHandler server = (IKieServerHandler) repository.getRoot();
 	    boolean useDefaultGitPath = server.getPreference(PREF_USE_DEFAULT_GIT_PATH, false);
-		String defaultRepoPath = UIUtils.getDefaultRepositoryDir();
-		String repoPath;
+		String defaultRepoRoot = UIUtils.getDefaultRepositoryDir();
+		String repoRoot;
 		if (useDefaultGitPath) {
-			repoPath = defaultRepoPath;
+			repoRoot = defaultRepoRoot;
 		}
 		else
 		{
-			defaultRepoPath += File.separator + server.getPreferenceName(null).replace(PREF_PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
-			repoPath = server.getPreference(PREF_GIT_REPO_PATH, defaultRepoPath);
+			defaultRepoRoot += File.separator + server.getPreferenceName(null).replace(PREF_PATH_SEPARATOR.charAt(0), File.separator.charAt(0));
+			repoRoot = server.getPreference(PREF_GIT_REPO_PATH, defaultRepoRoot);
 		}
-		return repoPath;
+		return repoRoot;
 	}
-
+	
+	public static String getRepoPath(IKieRepositoryHandler repository) {
+		return getRepoRoot(repository) + File.separator + repository.getName();
+	}
+	
+	public static URIish getRepoURI(IKieRepositoryHandler repository) {
+		IKieServiceDelegate delegate = repository.getDelegate();
+		String host = delegate.getServer().getHost();
+		int port = delegate.getGitPort();
+		String username = delegate.getUsername();
+		return getRepoURI(host, port, username, repository.getName());
+	}
+	
 	public static URIish getRepoURI(String host, int port, String username, String repoName) {
         // URI is in the form:
         // ssh://admin@localhost:8001/jbpm-playground

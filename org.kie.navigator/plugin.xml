@@ -172,9 +172,55 @@
     <page
           class="org.kie.eclipse.navigator.preferences.ServerPropertyPage"
           id="org.kie.eclipse.navigator.serverPropertyPage"
-          name="Server Properties"
-          objectClass="org.kie.eclipse.navigator.view.content.IContentNode">
+          name="Kie Server">
+          <enabledWhen>
+              <instanceof
+                  value="org.kie.eclipse.navigator.view.content.ServerNode">
+              </instanceof>
+          </enabledWhen>
+          
     </page>
  </extension>
 
+ <extension
+       point="org.eclipse.ui.propertyPages">
+    <page
+          class="org.kie.eclipse.navigator.preferences.OrganizationPropertyPage"
+          id="org.kie.eclipse.navigator.organizationPropertyPage"
+          name="Organizational Unit">
+          <enabledWhen>
+              <instanceof
+                  value="org.kie.eclipse.navigator.view.content.OrganizationNode">
+              </instanceof>
+          </enabledWhen>
+    </page>
+ </extension>
+
+ <extension
+       point="org.eclipse.ui.propertyPages">
+    <page
+          class="org.kie.eclipse.navigator.preferences.RepositoryPropertyPage"
+          id="org.kie.eclipse.navigator.repositoryPropertyPage"
+          name="Repository">
+          <enabledWhen>
+              <instanceof
+                  value="org.kie.eclipse.navigator.view.content.RepositoryNode">
+              </instanceof>
+          </enabledWhen>
+    </page>
+ </extension>
+
+ <extension
+       point="org.eclipse.ui.propertyPages">
+    <page
+          class="org.kie.eclipse.navigator.preferences.ProjectPropertyPage"
+          id="org.kie.eclipse.navigator.projectPropertyPage"
+          name="Project">
+          <enabledWhen>
+              <instanceof
+                  value="org.kie.eclipse.navigator.view.content.ProjectNode">
+              </instanceof>
+          </enabledWhen>
+    </page>
+ </extension>
 </plugin>

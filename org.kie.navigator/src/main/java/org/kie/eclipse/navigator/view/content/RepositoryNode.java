@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.kie.eclipse.navigator.view.server.IKieProject;
-import org.kie.eclipse.navigator.view.server.IKieRepository;
+import org.kie.eclipse.navigator.view.server.IKieProjectHandler;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
 import org.kie.eclipse.navigator.view.server.IKieResourceHandler;
 
 /**
@@ -30,8 +30,13 @@ public class RepositoryNode extends ContainerNode<OrganizationNode> {
 	 * @param container
 	 * @param name
 	 */
-	protected RepositoryNode(OrganizationNode container, IKieRepository repository) {
+	protected RepositoryNode(OrganizationNode container, IKieRepositoryHandler repository) {
 		super(container, repository);
+	}
+
+	protected RepositoryNode(ServerNode server, IKieRepositoryHandler repository) {
+		super(null, repository);
+        this.parent = server;
 	}
 
 	protected List<? extends IContentNode<?>> createChildren() {
@@ -39,8 +44,8 @@ public class RepositoryNode extends ContainerNode<OrganizationNode> {
 		Iterator<? extends IKieResourceHandler> iter = handlerChildren.iterator();
 		while (iter.hasNext()) {
 			IKieResourceHandler h = iter.next();
-			if (h instanceof IKieProject)
-				result.add(new ProjectNode(this,(IKieProject)h));
+			if (h instanceof IKieProjectHandler)
+				result.add(new ProjectNode(this,(IKieProjectHandler)h));
 		}
 		return result;
 

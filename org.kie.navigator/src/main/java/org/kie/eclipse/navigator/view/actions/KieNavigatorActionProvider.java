@@ -21,7 +21,7 @@ public class KieNavigatorActionProvider extends CommonActionProvider {
     public void fillContextMenu(IMenuManager menu) {
     	for (IKieNavigatorAction action : actions) {
     		action.calculateEnabled();
-    		if (action.isEnabled())
+//    		if (action.isEnabled())
     			menu.add(action);
     	}
     }

@@ -40,7 +40,7 @@ import org.kie.eclipse.navigator.preferences.PreferencesUtils;
  *
  */
 @SuppressWarnings("restriction")
-public class KieRepository extends KieResourceHandler implements IKieRepository, ConfigChangedListener, IKieNavigatorConstants {
+public class KieRepositoryHandler extends KieResourceHandler implements IKieRepositoryHandler, ConfigChangedListener, IKieNavigatorConstants {
 
 	static RepositoryCache repositoryCache = org.eclipse.egit.core.Activator.getDefault().getRepositoryCache();
 	Repository repository;
@@ -49,29 +49,30 @@ public class KieRepository extends KieResourceHandler implements IKieRepository,
 	 * @param organization
 	 * @param string
 	 */
-	public KieRepository(IKieOrganization organization, String name) {
+	public KieRepositoryHandler(IKieOrganizationHandler organization, String name) {
 		super(organization, name);
 	}
 
-	public KieRepository(IKieServer server, String name) {
+	public KieRepositoryHandler(IKieServerHandler server, String name) {
 		super(server, name);
 	}
 	
 	@Override
 	public List<? extends IKieResourceHandler> getChildren() throws Exception {
-		return getDelegate().getProjects(this);
+		if (children==null || children.isEmpty()) {
+			children = getDelegate().getProjects(this);
+		}
+		return children;
 	}
 	
 	@Override
-	public List<IKieProject> getProjects() throws Exception {
-		return (List<IKieProject>) getChildren();
+	public List<IKieProjectHandler> getProjects() throws Exception {
+		return (List<IKieProjectHandler>) getChildren();
 	}
 	
 	public Object load() {
 		if (repository == null) {
-			String repoPath = PreferencesUtils.getRepoPath(this);
-			
-			final File repoRoot = new File(repoPath);
+			final File repoRoot = new File(PreferencesUtils.getRepoRoot(this));
 			final Set<File> gitDirs = new HashSet<File>();
 			final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 

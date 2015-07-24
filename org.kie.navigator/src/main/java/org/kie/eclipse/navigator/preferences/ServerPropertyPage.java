@@ -31,7 +31,7 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		addField(new ReadonlyStringFieldEditor("Host Name:", server.getHost(), getFieldEditorParent()));
 		
 		StringFieldEditor stringEditor;
-		PasswordStringFieldEditor passwordEditor;
+		PasswordFieldEditor passwordEditor;
 		IntegerFieldEditor intEditor;
 		BooleanFieldEditor boolEditor;
 		
@@ -39,7 +39,7 @@ public class ServerPropertyPage extends FieldEditorPropertyPage implements IKieN
 		stringEditor = new StringFieldEditor(PREF_SERVER_USERNAME, "Username:", getFieldEditorParent());
 		addField(stringEditor);
 		
-		passwordEditor = new PasswordStringFieldEditor(PREF_SERVER_PASSWORD, "Password:", getFieldEditorParent());
+		passwordEditor = new PasswordFieldEditor(PREF_SERVER_PASSWORD, "Password:", getFieldEditorParent());
 		addField(passwordEditor);
 		
 		boolEditor = new MessageDialogToggleFieldEditor(PREF_SERVER_TRUSTED_CONNECTION, "Trust connections to this Server", getFieldEditorParent());

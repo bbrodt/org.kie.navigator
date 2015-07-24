@@ -8,6 +8,7 @@ public class ShowPropertiesAction extends PropertyDialogAction implements IKieNa
 	public ShowPropertiesAction(ICommonActionExtensionSite aSite) {
 		super(aSite.getViewSite().getShell(), aSite.getStructuredViewer());
 	}
+	
 	public void calculateEnabled() {
 		setEnabled(isEnabled());
 	}

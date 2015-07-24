@@ -13,6 +13,8 @@
 
 package org.kie.eclipse.navigator.view.server;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -22,6 +24,7 @@ import org.kie.eclipse.navigator.IKieNavigatorConstants;
 import org.osgi.service.prefs.Preferences;
 
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 /**
  *
@@ -30,6 +33,7 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 
 	protected static IEclipsePreferences preferences;
 	protected IKieResourceHandler parent;
+	protected List children;
 	protected String name;
 	protected JsonObject properties;
 
@@ -49,7 +53,12 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 	public IKieResourceHandler getParent() {
 		return parent;
 	}
-
+	
+	@Override
+	public void setParent(IKieResourceHandler parent) {
+		this.parent = parent;
+	}
+	
 	@Override
 	public IKieResourceHandler getRoot() {
 		if (getParent()==null)
@@ -81,6 +90,7 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 	}
 
 	public void dispose() {
+		children = null;
 	}
 	
 	public Object load() {
@@ -92,6 +102,9 @@ public abstract class KieResourceHandler implements IKieResourceHandler {
 	}
 	
 	public void setProperties(JsonObject properties) {
+		JsonValue v = properties.get("name");
+		if (v!=null && v.isString())
+			name = v.asString();
 		this.properties = properties;
 	}
 	

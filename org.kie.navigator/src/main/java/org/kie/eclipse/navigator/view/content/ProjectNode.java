@@ -15,7 +15,7 @@ package org.kie.eclipse.navigator.view.content;
 
 import java.util.List;
 
-import org.kie.eclipse.navigator.view.server.IKieProject;
+import org.kie.eclipse.navigator.view.server.IKieProjectHandler;
 
 /**
  *
@@ -26,7 +26,7 @@ public class ProjectNode extends ContainerNode<RepositoryNode> {
 	 * @param container
 	 * @param name
 	 */
-	protected ProjectNode(RepositoryNode container, IKieProject project) {
+	protected ProjectNode(RepositoryNode container, IKieProjectHandler project) {
 		super(container, project);
 	}
 

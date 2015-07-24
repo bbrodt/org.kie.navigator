@@ -19,9 +19,9 @@ import java.util.List;
 /**
  *
  */
-public interface IKieServer extends IKieResourceHandler {
+public interface IKieServerHandler extends IKieResourceHandler {
 
-	List<IKieOrganization> getOrganizations() throws IOException;
-	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
-	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
+	List<IKieOrganizationHandler> getOrganizations() throws IOException;
+	List<IKieRepositoryHandler> getRepositories(IKieOrganizationHandler organization) throws IOException;
+	List<IKieProjectHandler> getProjects(IKieRepositoryHandler repository) throws IOException;
 }

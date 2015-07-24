@@ -35,19 +35,23 @@ public interface IKieServiceDelegate {
 	void setHandler(IKieResourceHandler handler);
 	IKieResourceHandler getHandler();
 	
-	List<IKieOrganization> getOrganizations(IKieServer service) throws IOException;
-	List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException;
-	List<IKieRepository> getRepositories(IKieServer server) throws IOException;
-	List<IKieProject> getProjects(IKieRepository repository) throws IOException;
+	List<IKieOrganizationHandler> getOrganizations(IKieServerHandler service) throws IOException;
+	List<IKieRepositoryHandler> getRepositories(IKieOrganizationHandler organization) throws IOException;
+	List<IKieRepositoryHandler> getRepositories(IKieServerHandler server) throws IOException;
+	List<IKieProjectHandler> getProjects(IKieRepositoryHandler repository) throws IOException;
 
-	void createOrganization(IKieOrganization organization) throws IOException;
-	void createRepository(IKieRepository repository) throws IOException;
-	void addRepository(IKieRepository repository, IKieOrganization organization) throws IOException;
-	void createProject(IKieProject project) throws IOException;
+	void createOrganization(IKieOrganizationHandler organization) throws IOException;
+	void createRepository(IKieRepositoryHandler repository) throws IOException;
+	void addRepository(IKieRepositoryHandler repository, IKieOrganizationHandler organization) throws IOException;
+	void createProject(IKieProjectHandler project) throws IOException;
 
-	void deleteOrganization(IKieOrganization organization) throws IOException;
-	void deleteRepository(IKieRepository repository, boolean removeOnly) throws IOException;
-	void deleteProject(IKieProject project) throws IOException;
+	void deleteOrganization(IKieOrganizationHandler organization) throws IOException;
+	void deleteRepository(IKieRepositoryHandler repository, boolean removeOnly) throws IOException;
+	void deleteProject(IKieProjectHandler project) throws IOException;
+
+	void updateOrganization(String oldName, IKieOrganizationHandler organization) throws IOException;
+	void updateRepository(String oldName, IKieRepositoryHandler repository) throws IOException;
+	void updateProject(String oldName, IKieProjectHandler project) throws IOException;
 
 	String getUsername();
 	String getPassword();

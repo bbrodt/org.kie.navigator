@@ -7,17 +7,15 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
-import org.kie.eclipse.navigator.view.server.IKieOrganization;
-import org.kie.eclipse.navigator.view.server.IKieRepository;
-import org.kie.eclipse.navigator.view.server.IKieServer;
+import org.kie.eclipse.navigator.view.server.IKieOrganizationHandler;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
+import org.kie.eclipse.navigator.view.server.IKieServerHandler;
 import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
 
 public class AddRepositoryAction extends KieNavigatorAction {
@@ -31,22 +29,21 @@ public class AddRepositoryAction extends KieNavigatorAction {
 	}
 
 	public void run() {
-        IStructuredSelection selection = getStructuredSelection();
-        if (selection == null || selection.isEmpty()) {
-            return;
-        }
-        IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-        IKieOrganization organization = (IKieOrganization) container.getHandler();
-        IKieServer server = (IKieServer) container.getRoot().getHandler();
-        IKieServiceDelegate delegate = container.getHandler().getDelegate();
+        IContainerNode<?> container = getContainer();
+        if (container==null)
+        	return;
+        
+        IKieOrganizationHandler organization = (IKieOrganizationHandler) container.getHandler();
+        IKieServerHandler server = (IKieServerHandler) container.getRoot().getHandler();
+        IKieServiceDelegate delegate = getDelegate();
 
         try {
         	// get a list of all repositories
-			List<IKieRepository> allRepositories = delegate.getRepositories(server);
+			List<IKieRepositoryHandler> allRepositories = delegate.getRepositories(server);
 			// and remove the ones that are owned by an Organization
-			for (IKieOrganization org : delegate.getOrganizations(server)) {
-				for (IKieRepository rep : org.getRepositories()) {
-					for (IKieRepository ar : allRepositories) {
+			for (IKieOrganizationHandler org : delegate.getOrganizations(server)) {
+				for (IKieRepositoryHandler rep : org.getRepositories()) {
+					for (IKieRepositoryHandler ar : allRepositories) {
 						if (ar.getName().equals(rep.getName())) {
 							allRepositories.remove(ar);
 							break;
@@ -74,7 +71,7 @@ public class AddRepositoryAction extends KieNavigatorAction {
 
 					@Override
 					public Object[] getElements(Object inputElement) {
-						return ((List<IKieRepository>)inputElement).toArray();
+						return ((List<IKieRepositoryHandler>)inputElement).toArray();
 					}
 					
 				});
@@ -98,7 +95,7 @@ public class AddRepositoryAction extends KieNavigatorAction {
 					
 					@Override
 					public String getText(Object element) {
-						return ((IKieRepository)element).getName();
+						return ((IKieRepositoryHandler)element).getName();
 					}
 					
 					@Override
@@ -113,13 +110,11 @@ public class AddRepositoryAction extends KieNavigatorAction {
 					Object[] result = dlg.getResult();
 					if (result.length==1) {
 			            try {
-			            	delegate.addRepository((IKieRepository)result[0], organization);
-			            	container.clearChildren();
-			            	container.getNavigator().getCommonViewer().refresh(container);
+			            	delegate.addRepository((IKieRepositoryHandler)result[0], organization);
+			            	refreshViewer(container.getRoot());
 			            }
 			            catch (Exception e) {
-			            	e.printStackTrace();
-			            	MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e.getMessage());
+			            	handleException(e);
 			            }
 
 					}
@@ -128,7 +123,7 @@ public class AddRepositoryAction extends KieNavigatorAction {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+        	handleException(e);
 		}
     }
 }

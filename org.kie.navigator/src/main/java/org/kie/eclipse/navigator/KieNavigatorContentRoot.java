@@ -22,7 +22,7 @@ import org.eclipse.wst.server.core.ServerCore;
 import org.kie.eclipse.navigator.view.content.ContainerNode;
 import org.kie.eclipse.navigator.view.content.IContentNode;
 import org.kie.eclipse.navigator.view.content.ServerNode;
-import org.kie.eclipse.navigator.view.server.KieServer;
+import org.kie.eclipse.navigator.view.server.KieServerHandler;
 import org.kie.eclipse.navigator.view.server.ServerProxy;
 
 /**
@@ -51,7 +51,7 @@ public class KieNavigatorContentRoot {
 	protected List<? extends IContentNode<?>> createChildren() {
 		List<ServerNode> children = new ArrayList<ServerNode>();
 		for (IServer s : ServerCore.getServers()) {
-			if (KieServer.isSupportedServer(s)) {
+			if (KieServerHandler.isSupportedServer(s)) {
 				s = new ServerProxy(s);
 				ServerNode node = new ServerNode(s, viewer);
 				children.add(node);

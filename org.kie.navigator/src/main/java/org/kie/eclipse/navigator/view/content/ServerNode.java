@@ -24,9 +24,10 @@ import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.wst.server.core.IServer;
 import org.kie.eclipse.navigator.Activator;
 import org.kie.eclipse.navigator.IKieNavigatorConstants;
-import org.kie.eclipse.navigator.view.server.IKieOrganization;
+import org.kie.eclipse.navigator.view.server.IKieOrganizationHandler;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
 import org.kie.eclipse.navigator.view.server.IKieResourceHandler;
-import org.kie.eclipse.navigator.view.server.KieServer;
+import org.kie.eclipse.navigator.view.server.KieServerHandler;
 
 /**
  *
@@ -44,17 +45,22 @@ public class ServerNode extends ContainerNode implements IPropertyChangeListener
 		super(server==null ? "root" : server.getName());
 		this.server = server;
 		this.navigator = navigator;
-        handler = server==null ? null : new KieServer(server);
+        handler = server==null ? null : new KieServerHandler(server);
 		Activator.getDefault().getPreferenceStore().addPropertyChangeListener(this);
 	}
 	
 	protected List<? extends IContentNode<?>> createChildren() {
-		List<OrganizationNode> children = new ArrayList<OrganizationNode>();
+		List children = new ArrayList();
 		Iterator<? extends IKieResourceHandler> iter = handlerChildren.iterator();
 		while (iter.hasNext()) {
 			IKieResourceHandler h = iter.next();
-			if (h instanceof IKieOrganization)
-				children.add(new OrganizationNode(this,(IKieOrganization)h));
+			IContentNode<?> n = null;
+			if (h instanceof IKieOrganizationHandler)
+				n = new OrganizationNode(this,(IKieOrganizationHandler)h);
+			else if (h instanceof IKieRepositoryHandler)
+				n = new RepositoryNode(this,(IKieRepositoryHandler)h);
+			if (n!=null)
+				children.add(n);
 		}
 		return children;
 	}
@@ -69,7 +75,7 @@ public class ServerNode extends ContainerNode implements IPropertyChangeListener
 	
 	public IKieResourceHandler getHandler() {
     	 if (handler==null) {
-    		 handler = new KieServer(server);
+    		 handler = new KieServerHandler(server);
     	 }
     	 return handler;
     }

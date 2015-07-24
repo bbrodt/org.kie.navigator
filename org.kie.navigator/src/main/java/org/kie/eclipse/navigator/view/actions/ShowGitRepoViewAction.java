@@ -1,11 +1,11 @@
 package org.kie.eclipse.navigator.view.actions;
 
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.kie.eclipse.navigator.view.content.IContainerNode;
 
 public class ShowGitRepoViewAction extends KieNavigatorAction {
 	
@@ -20,10 +20,10 @@ public class ShowGitRepoViewAction extends KieNavigatorAction {
 	}
 
 	public void run() {
-        IStructuredSelection selection = getStructuredSelection();
-        if (selection == null || selection.isEmpty()) {
-            return;
-        }
+        IContainerNode<?> container = getContainer();
+        if (container==null)
+        	return;
+        
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 		if (win==null)

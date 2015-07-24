@@ -16,7 +16,7 @@ import com.eclipsesource.json.JsonObject;
 
 public abstract class AbstractKieRequestDialog extends TitleAreaDialog {
 	
-	protected JsonObject result = new JsonObject();
+	protected JsonObject properties = new JsonObject();
 	protected Button okButton;
 	protected Composite errorComposite;
 	protected Label errorText;
@@ -39,7 +39,7 @@ public abstract class AbstractKieRequestDialog extends TitleAreaDialog {
 	}
 	
 	public JsonObject getResult() {
-		return result;
+		return properties;
 	}
 
     /* (non-Javadoc)
@@ -127,7 +127,7 @@ public abstract class AbstractKieRequestDialog extends TitleAreaDialog {
 	
 	protected void validate() {
 		String msg = null;
-		if (validator!=null && (msg = validator.isValid(result))!=null) {
+		if (validator!=null && (msg = validator.isValid(properties))!=null) {
 			setErrorMessage(msg);
 			setDialogComplete(false);
 		}

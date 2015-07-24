@@ -4,20 +4,21 @@ import java.io.IOException;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.kie.eclipse.navigator.view.server.IKieOrganization;
-import org.kie.eclipse.navigator.view.server.IKieServer;
+import org.kie.eclipse.navigator.view.server.IKieOrganizationHandler;
+import org.kie.eclipse.navigator.view.server.IKieServerHandler;
 
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
-public class OrganizationRequestDialog extends AbstractKieRequestDialog {
+public class CreateOrganizationRequestDialog extends AbstractKieRequestDialog {
 
-	IKieServer server;
+	IKieServerHandler server;
 	KieRequestDialogTextField name;
 	KieRequestDialogTextField description;
 	KieRequestDialogTextField owner;
+	KieRequestDialogTextField defaultGroupId;
 	
-	public OrganizationRequestDialog(Shell shell, IKieServer server) {
+	public CreateOrganizationRequestDialog(Shell shell, IKieServerHandler server) {
 		super(shell, "Organizational Unit", new IKieRequestValidator() {
 			@Override
 			public String isValid(JsonObject object) {
@@ -28,7 +29,7 @@ public class OrganizationRequestDialog extends AbstractKieRequestDialog {
 				String owner = jv==null ? null : jv.asString();
 				if (name!=null && !name.isEmpty()) {
 					try {
-						for (IKieOrganization org : server.getOrganizations()) {
+						for (IKieOrganizationHandler org : server.getOrganizations()) {
 							if (org.getName().equals(name))
 								return "Organizational Unit '"+name+"' already exists";
 						}
@@ -51,20 +52,21 @@ public class OrganizationRequestDialog extends AbstractKieRequestDialog {
 	protected void createFields(Composite composite) {
         setMessage("Enter the Organizational Unit details");
 
-		name = new KieRequestDialogTextField(composite, "Name:", "", result, "name");
+		name = new KieRequestDialogTextField(composite, "Name:", "", properties, "name");
 		name.setChangeListener(new IKieRequestChangeListener() {
 			@Override
 			public void objectChanged(JsonObject object) {
 				validate();
 			}
 		});
-		description = new KieRequestDialogTextField(composite, "Description:", "", result, "description");
-		owner = new KieRequestDialogTextField(composite, "Owner:", "", result, "owner");
+		description = new KieRequestDialogTextField(composite, "Description:", "", properties, "description");
+		owner = new KieRequestDialogTextField(composite, "Owner:", "", properties, "owner");
 		owner.setChangeListener(new IKieRequestChangeListener() {
 			@Override
 			public void objectChanged(JsonObject object) {
 				validate();
 			}
 		});
+		defaultGroupId = new KieRequestDialogTextField(composite, "Default Group ID:", "", properties, "defaultGroupId");
 	}
 }

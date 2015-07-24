@@ -15,11 +15,12 @@ package org.kie.eclipse.navigator.view.server;
 
 import java.util.List;
 
+import org.eclipse.jgit.lib.Repository;
 
 /**
  *
  */
-public interface IKieOrganization extends IKieResourceHandler {
-
-	List<IKieRepository> getRepositories() throws Exception;
+public interface IKieRepositoryHandler extends IKieResourceHandler {
+	Repository getRepository();
+	List<IKieProjectHandler> getProjects() throws Exception;
 }

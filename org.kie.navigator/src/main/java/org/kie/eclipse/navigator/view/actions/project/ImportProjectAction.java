@@ -14,22 +14,19 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.egit.core.op.ConnectProviderOperation;
 import org.eclipse.egit.core.project.RepositoryFinder;
 import org.eclipse.egit.core.project.RepositoryMapping;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.swt.widgets.Display;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
 import org.kie.eclipse.navigator.view.content.ProjectNode;
 import org.kie.eclipse.navigator.view.content.RepositoryNode;
-import org.kie.eclipse.navigator.view.server.KieRepository;
+import org.kie.eclipse.navigator.view.server.KieRepositoryHandler;
 
 public class ImportProjectAction extends KieNavigatorAction {
 
@@ -42,14 +39,11 @@ public class ImportProjectAction extends KieNavigatorAction {
 	}
 
 	public void run() {
-		IStructuredSelection selection = getStructuredSelection();
-		if (selection == null || selection.isEmpty()) {
-			return;
-		}
-		IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
+		IContainerNode<?> container = getContainer();
 		if (!(container instanceof ProjectNode)) {
 			return;
 		}
+		
 		final ProjectNode projectNode = (ProjectNode) container;
 		final String projectName = projectNode.getName();
 		final RepositoryNode repoNode = (RepositoryNode) projectNode.getContainer();
@@ -57,7 +51,7 @@ public class ImportProjectAction extends KieNavigatorAction {
 			@Override
 			public void run(IProgressMonitor monitor) throws CoreException {
 				try {
-					Repository repository = ((KieRepository) repoNode.getHandler()).getRepository();
+					Repository repository = ((KieRepositoryHandler) repoNode.getHandler()).getRepository();
 					IProject project = createOrOpenProject(repository, projectName, monitor);
 					if (project != null) {
 						Map<IProject, File> projectsToConnect = new HashMap<IProject, File>();
@@ -72,19 +66,11 @@ public class ImportProjectAction extends KieNavigatorAction {
 						}
 					}
 				}
-				catch (CoreException e1) {
+				catch (final Exception e1) {
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e1.getMessage());
-						}
-					});
-				}
-				catch (IllegalArgumentException e2) {
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e2.getMessage());
+							handleException(e1);
 						}
 					});
 				}
@@ -93,11 +79,8 @@ public class ImportProjectAction extends KieNavigatorAction {
 		try {
 			ResourcesPlugin.getWorkspace().run(wsr, null);
 		}
-		catch (OperationCanceledException e) {
-			e.printStackTrace();
-		}
-		catch (CoreException e) {
-			e.printStackTrace();
+		catch (Exception e) {
+			handleException(e);
 		}
     }
 	

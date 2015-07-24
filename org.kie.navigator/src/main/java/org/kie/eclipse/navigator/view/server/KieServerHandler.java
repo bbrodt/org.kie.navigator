@@ -14,6 +14,7 @@
 package org.kie.eclipse.navigator.view.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -25,7 +26,7 @@ import org.kie.eclipse.navigator.Activator;
 /**
  *
  */
-public class KieServer extends KieResourceHandler implements IKieServer {
+public class KieServerHandler extends KieResourceHandler implements IKieServerHandler {
 
     private final IServer server;
 	private IKieServiceDelegate delegate;
@@ -33,7 +34,7 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 	/**
 	 * 
 	 */
-	public KieServer(IServer server) {
+	public KieServerHandler(IServer server) {
 		super(null,server.getName());
 		this.server = server;
 	}
@@ -119,7 +120,7 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 	 * @see org.kie.eclipse.navigator.view.server.IKieService#getOrganizations()
 	 */
 	@Override
-	public List<IKieOrganization> getOrganizations() throws IOException {
+	public List<IKieOrganizationHandler> getOrganizations() throws IOException {
 		return getDelegate().getOrganizations(this);
 	}
 
@@ -127,7 +128,7 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 	 * @see org.kie.eclipse.navigator.view.server.IKieService#getRepositories(org.kie.eclipse.navigator.view.server.IKieOrganization)
 	 */
 	@Override
-	public List<IKieRepository> getRepositories(IKieOrganization organization) throws IOException {
+	public List<IKieRepositoryHandler> getRepositories(IKieOrganizationHandler organization) throws IOException {
 		return getDelegate().getRepositories(organization);
 	}
 
@@ -135,15 +136,35 @@ public class KieServer extends KieResourceHandler implements IKieServer {
 	 * @see org.kie.eclipse.navigator.view.server.IKieService#getProjects(org.kie.eclipse.navigator.view.server.IKieRepository)
 	 */
 	@Override
-	public List<IKieProject> getProjects(IKieRepository repository) throws IOException {
+	public List<IKieProjectHandler> getProjects(IKieRepositoryHandler repository) throws IOException {
 		return getDelegate().getProjects(repository);
 	}
 
 	public List<? extends IKieResourceHandler> getChildren() throws Exception {
-		return getDelegate().getOrganizations(this);
+		if (children==null)
+			children = new ArrayList<IKieResourceHandler>();
+		if (children.isEmpty()) {
+			List<IKieRepositoryHandler> allRepositories = getDelegate().getRepositories(this);
+			List<IKieOrganizationHandler> organizations = getDelegate().getOrganizations(this);
+			for (IKieRepositoryHandler r1 : allRepositories) {
+				boolean contained = false;
+				for (IKieOrganizationHandler o : organizations) {
+					for (IKieRepositoryHandler r2 : o.getRepositories()) {
+						if (r1.getName().equals(r2.getName())) {
+							contained = true;
+							break;
+						}
+					}
+				}
+				if (!contained)
+					children.add(r1);
+			}
+			children.addAll(organizations);
+		}		
+		return children;
 	}
 	
-	protected boolean isServerRunning() {
+	public boolean isServerRunning() {
 		return server.getServerState() == IServer.STATE_STARTED;
 	}
 	

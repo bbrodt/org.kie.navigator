@@ -3,14 +3,11 @@ package org.kie.eclipse.navigator.view.actions.repository;
 import java.io.IOException;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Display;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
-import org.kie.eclipse.navigator.view.server.IKieRepository;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
 import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
 
 public class DeleteRepositoryAction extends KieNavigatorAction {
@@ -29,26 +26,23 @@ public class DeleteRepositoryAction extends KieNavigatorAction {
 	}
 
 	public void run() {
-		IStructuredSelection selection = getStructuredSelection();
-		if (selection == null || selection.isEmpty()) {
+		IContainerNode<?> container = getContainer();
+		if (container==null)
 			return;
-		}
-		IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
+		
 		MessageDialogWithToggle dlg = MessageDialogWithToggle.openYesNoQuestion(getShell(), "Remove Repository",
 				"Are you sure you want to remove the Repository " + container.getName() + " from the Organizational Unit "
 						+ container.getParent().getName() + "?", "Also delete the Repository completely from the Server.",
 				false, null, null);
 		if (dlg.getReturnCode() == IDialogConstants.YES_ID) {
-			IKieServiceDelegate delegate = container.getHandler().getDelegate();
+			IKieServiceDelegate delegate = getDelegate();
+			
 			try {
-				delegate.deleteRepository((IKieRepository) container.getHandler(), !dlg.getToggleState());
-				container = container.getParent();
-				container.clearChildren();
-				container.getNavigator().getCommonViewer().refresh(container);
+				delegate.deleteRepository((IKieRepositoryHandler) container.getHandler(), !dlg.getToggleState());
+            	refreshViewer(container.getRoot());
 			}
 			catch (IOException e) {
-				e.printStackTrace();
-				MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e.getMessage());
+				handleException(e);
 			}
 		}
 	}

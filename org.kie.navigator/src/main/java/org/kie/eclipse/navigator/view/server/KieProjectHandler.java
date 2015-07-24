@@ -23,7 +23,7 @@ import org.eclipse.jgit.lib.Repository;
 /**
  *
  */
-public class KieProject extends KieResourceHandler implements IKieProject {
+public class KieProjectHandler extends KieResourceHandler implements IKieProjectHandler {
 
 	IProject project;
 	
@@ -31,7 +31,7 @@ public class KieProject extends KieResourceHandler implements IKieProject {
 	 * @param repository
 	 * @param string
 	 */
-	public KieProject(IKieRepository repository, String name) {
+	public KieProjectHandler(IKieRepositoryHandler repository, String name) {
 		super(repository, name);
 	}
 	

@@ -18,24 +18,27 @@ import java.util.List;
 /**
  *
  */
-public class KieOrganization extends KieResourceHandler implements IKieOrganization {
+public class KieOrganizationHandler extends KieResourceHandler implements IKieOrganizationHandler {
 
 	/**
 	 * 
 	 */
-	public KieOrganization(IKieServer service, String name) {
+	public KieOrganizationHandler(IKieServerHandler service, String name) {
 		super(service, name);
 	}
 	
 	public List<? extends IKieResourceHandler> getChildren() throws Exception {
-		return getDelegate().getRepositories(this);
+		if (children==null || children.isEmpty()) {
+			children = getDelegate().getRepositories(this);
+		}
+		return children;
 	}
 	
 	public boolean isLoaded() {
 		return true;
 	}
 	
-	public List<IKieRepository> getRepositories() throws Exception {
-		return (List<IKieRepository>) getChildren();
+	public List<IKieRepositoryHandler> getRepositories() throws Exception {
+		return (List<IKieRepositoryHandler>) getChildren();
 	}
 }

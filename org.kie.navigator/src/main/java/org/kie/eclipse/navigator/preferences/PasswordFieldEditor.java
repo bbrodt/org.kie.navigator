@@ -8,7 +8,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-public class PasswordStringFieldEditor extends FieldEditor {
+public class PasswordFieldEditor extends FieldEditor {
 
     /**
      * Text limit constant (value <code>-1</code>) indicating unlimited
@@ -32,7 +32,7 @@ public class PasswordStringFieldEditor extends FieldEditor {
      */
     private int widthInChars = UNLIMITED;
 
-	public PasswordStringFieldEditor(String name, String labelText, Composite parent) {
+	public PasswordFieldEditor(String name, String labelText, Composite parent) {
 		super(name, labelText, parent);
 	}
 	

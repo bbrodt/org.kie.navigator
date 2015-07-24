@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.preference.FieldEditor;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -18,7 +19,6 @@ import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.ui.internal.dialogs.PropertyDialog;
 import org.kie.eclipse.navigator.Activator;
-import org.kie.eclipse.navigator.view.content.IContainerNode;
 import org.kie.eclipse.navigator.view.content.IContentNode;
 import org.kie.eclipse.navigator.view.server.IKieResourceHandler;
 
@@ -187,11 +187,16 @@ public abstract class FieldEditorPropertyPage extends PropertyPage implements IW
 	protected String getPreferenceName(String name) {
 		if (resourceHandler==null) {
 			resourceHandler = getResourceHandler();
-			setPreferenceStore(Activator.getDefault().getPreferenceStore());
+			setPreferenceStore(getPreferenceStore());
 		}
 		return resourceHandler.getPreferenceName(name);
 	}
 	
+	@Override
+	public IPreferenceStore getPreferenceStore() {
+		return Activator.getDefault().getPreferenceStore();
+	}
+
 	/*
 	 * (non-Javadoc) Method declared on PreferencePage.
 	 */

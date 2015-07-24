@@ -13,14 +13,13 @@
 
 package org.kie.eclipse.navigator.view.server;
 
-import org.eclipse.jgit.lib.Repository;
-
 import java.util.List;
+
 
 /**
  *
  */
-public interface IKieRepository extends IKieResourceHandler {
-	Repository getRepository();
-	List<IKieProject> getProjects() throws Exception;
+public interface IKieOrganizationHandler extends IKieResourceHandler {
+
+	List<IKieRepositoryHandler> getRepositories() throws Exception;
 }

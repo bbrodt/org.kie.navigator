@@ -2,11 +2,9 @@ package org.kie.eclipse.navigator.view.actions.project;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Display;
 import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
-import org.kie.eclipse.navigator.view.server.IKieProject;
+import org.kie.eclipse.navigator.view.server.IKieProjectHandler;
 import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
 
 public class DeleteProjectAction extends KieNavigatorAction {
@@ -16,13 +14,12 @@ public class DeleteProjectAction extends KieNavigatorAction {
 	}
 
 	public void run() {
-        IStructuredSelection selection = getStructuredSelection();
-        if (selection == null || selection.isEmpty()) {
-            return;
-        }
-        IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-        IKieProject project = (IKieProject) container.getHandler();
-        IKieServiceDelegate delegate = container.getHandler().getDelegate();
+        IContainerNode<?> container = getContainer();
+        if (container==null)
+        	return;
+        
+        IKieProjectHandler project = (IKieProjectHandler) container.getHandler();
+        IKieServiceDelegate delegate = getDelegate();
 
         boolean doit = MessageDialog.openConfirm(
 				getShell(), "Delete Project",
@@ -30,13 +27,10 @@ public class DeleteProjectAction extends KieNavigatorAction {
 		if (doit) {
             try {
             	delegate.deleteProject(project);
-            	container = container.getParent();
-            	container.clearChildren();
-            	container.getNavigator().getCommonViewer().refresh(container);
+            	refreshViewer(container.getParent());
             }
             catch (Exception e) {
-            	e.printStackTrace();
-            	MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", e.getMessage());
+            	handleException(e);
             }
         }
 	}

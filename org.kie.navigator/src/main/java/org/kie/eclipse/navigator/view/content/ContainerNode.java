@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.wst.server.core.IServer;
-import org.kie.eclipse.navigator.view.server.IKieProject;
+import org.kie.eclipse.navigator.view.server.IKieProjectHandler;
 import org.kie.eclipse.navigator.view.server.IKieResourceHandler;
 
 public abstract class ContainerNode<T extends IContainerNode<?>> extends ContentNode<T> implements IContainerNode<T> {
@@ -79,7 +79,7 @@ public abstract class ContainerNode<T extends IContainerNode<?>> extends Content
             return;
         }
         try {
-    		handlerChildren = (List<IKieProject>) getHandler().getChildren();
+    		handlerChildren = (List<IKieProjectHandler>) getHandler().getChildren();
             clearError();
         } catch (Exception e) {
             setError(new ErrorNode(this, e));

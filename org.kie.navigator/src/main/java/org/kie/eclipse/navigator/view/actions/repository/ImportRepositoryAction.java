@@ -8,12 +8,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.egit.core.EclipseGitProgressTransformer;
+import org.eclipse.egit.core.RepositoryUtil;
 import org.eclipse.egit.core.securestorage.UserPasswordCredentials;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -36,10 +36,10 @@ import org.kie.eclipse.navigator.view.actions.KieNavigatorAction;
 import org.kie.eclipse.navigator.view.actions.dialogs.LoginDialog;
 import org.kie.eclipse.navigator.view.content.ContentNode;
 import org.kie.eclipse.navigator.view.content.IContainerNode;
-import org.kie.eclipse.navigator.view.server.IKieRepository;
-import org.kie.eclipse.navigator.view.server.IKieServer;
+import org.kie.eclipse.navigator.view.server.IKieRepositoryHandler;
+import org.kie.eclipse.navigator.view.server.IKieServerHandler;
 import org.kie.eclipse.navigator.view.server.IKieServiceDelegate;
-import org.kie.eclipse.navigator.view.server.KieRepository;
+import org.kie.eclipse.navigator.view.server.KieRepositoryHandler;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -56,14 +56,11 @@ public class ImportRepositoryAction extends KieNavigatorAction {
 
 	@Override
 	public boolean isEnabled() {
-		IStructuredSelection selection = getStructuredSelection();
-		if (selection != null && !selection.isEmpty()) {
-			IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-			if (container instanceof ContentNode) {
-				KieRepository handler = (KieRepository) ((ContentNode) container).getHandler();
-				if (handler == null || !handler.isLoaded())
-					return true;
-			}
+		IContainerNode<?> container = getContainer();
+		if (container instanceof ContentNode) {
+			KieRepositoryHandler handler = (KieRepositoryHandler) ((ContentNode) container).getHandler();
+			if (handler == null || !handler.isLoaded())
+				return true;
 		}
 		return false;
 	}
@@ -75,14 +72,13 @@ public class ImportRepositoryAction extends KieNavigatorAction {
 
 	@SuppressWarnings("restriction")
 	public void run() {
-		IStructuredSelection selection = getStructuredSelection();
-		if (selection == null || selection.isEmpty()) {
+		final IContainerNode<?> container = getContainer();
+		if (container==null)
 			return;
-		}
-		final IContainerNode<?> container = (IContainerNode<?>) ((IStructuredSelection) selection).getFirstElement();
-		final IKieRepository handler = (IKieRepository) container.getHandler();
-		final IKieServer server = (IKieServer) handler.getRoot();
-		final IKieServiceDelegate delegate = handler.getDelegate();
+		
+		final IKieRepositoryHandler handler = (IKieRepositoryHandler) container.getHandler();
+		final IKieServerHandler server = (IKieServerHandler) handler.getRoot();
+		final IKieServiceDelegate delegate = getDelegate();
 
 		try {
 			String host = delegate.getServer().getHost();
@@ -98,16 +94,16 @@ public class ImportRepositoryAction extends KieNavigatorAction {
 			username = dlg.getUsername();
 			password = dlg.getPassword();
 			uri = PreferencesUtils.getRepoURI(host, port, username, handler.getName());
-			final String localPath = PreferencesUtils.getRepoPath(handler) + File.separator + handler.getName();
+			final String localPath = PreferencesUtils.getRepoPath(handler);
 			final String remotePath = uri.toString();
 			final CredentialsProvider credentialsProvider = new KieCredentialsProvider(server, username, password);
-			Job job = new Job("Clone Repository") {
+			Job job = new Job("Import Repository") {
 				@Override
 				protected IStatus run(final IProgressMonitor monitor) {
 					Repository localRepo = null;
 					try {
 						EclipseGitProgressTransformer gitMonitor = new EclipseGitProgressTransformer(monitor);
-						localRepo = new FileRepository(localPath + "/.git");
+						localRepo = new FileRepository(localPath + File.separator + ".git");
 						CloneCommand cloneCmd = Git.cloneRepository().setURI(remotePath).setDirectory(new File(localPath))
 								.setProgressMonitor(gitMonitor).setCloneAllBranches(true).setTimeout(60)
 								.setCredentialsProvider(credentialsProvider)
@@ -133,16 +129,15 @@ public class ImportRepositoryAction extends KieNavigatorAction {
 								});
 
 						cloneCmd.call();
-						Display.getDefault().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								container.getParent().clearChildren();
-								container.getNavigator().getCommonViewer().refresh(container.getParent());
-							}
-						});
+						refreshViewer(container.getParent());
+						localRepo.close();
+						
+						RepositoryUtil util = org.eclipse.egit.ui.Activator.getDefault().getRepositoryUtil();
+						util.addConfiguredRepository(localRepo.getDirectory());
+						localRepo = null;
 					}
 					catch (Exception e) {
-						e.printStackTrace();
+						handleException(e);
 					}
 					finally {
 						if (localRepo != null)
@@ -155,16 +150,16 @@ public class ImportRepositoryAction extends KieNavigatorAction {
 			job.schedule();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			handleException(e);
 		}
 	}
 
 	class KieCredentialsProvider extends CredentialsProvider {
-		private IKieServer server;
+		private IKieServerHandler server;
 		private String user;
 		private String password;
 
-		public KieCredentialsProvider(IKieServer server, String username, String password) {
+		public KieCredentialsProvider(IKieServerHandler server, String username, String password) {
 			this.server = server;
 			this.user = username;
 			this.password = password;

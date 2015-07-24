@@ -13,10 +13,9 @@
 
 package org.kie.eclipse.navigator.view.server;
 
-import org.eclipse.wst.server.core.IServer;
 
 /**
  *
  */
-public interface IKieProject extends IKieResourceHandler {
+public interface IKieProjectHandler extends IKieResourceHandler {
 }

@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -85,12 +86,14 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	protected String httpGet(String request) throws IOException {
 		String host = getKieRESTUrl();
 		URL url = new URL(host + "/" + request);
+		System.out.println("[GET] "+url.toString());
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("GET");
 		conn.setRequestProperty("Content", "application/json");
 		String creds = getUsername() + ":" + getPassword();
 		conn.setRequestProperty("Authorization", "Basic " + Base64Util.encode(creds));
 		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
+		System.out.println("[GET] response: "+response);
 		return response;
 	}
 
@@ -105,22 +108,24 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	protected String httpDelete(String request) throws IOException {
 		String host = getKieRESTUrl();
 		URL url = new URL(host + "/" + request);
+		System.out.println("[DELETE] "+url.toString());
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("DELETE");
 		conn.setRequestProperty("Content", "application/json");
 		String creds = getUsername() + ":" + getPassword();
 		conn.setRequestProperty("Authorization", "Basic " + Base64Util.encode(creds));
 		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
+		System.out.println("[DELETE] response: "+response);
 
 		if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
-			throw new IOException("HTTP POST failed : HTTP error code : " + conn.getResponseCode());
+			throw new IOException("HTTP DELETE failed : HTTP error code : " + conn.getResponseCode());
 		}
 
 		JsonObject jo = JsonObject.readFrom(response);
 		String status = jo.get("status").asString();
 		if (status != null && !status.isEmpty()) {
 			if (!"APPROVED".equals(status))
-				throw new IOException("HTTP POST failed : Request status code : " + status);
+				throw new IOException("HTTP DELETE failed : Request status code : " + status);
 		}
 		String jobId = jo.get("jobId").asString();
 		if (jobId != null && !jobId.isEmpty())
@@ -143,6 +148,8 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	protected String httpPost(String request, JsonObject body) throws IOException, RuntimeException {
 		String host = getKieRESTUrl();
 		URL url = new URL(host + "/" + request);
+		System.out.println("[POST] "+url.toString());
+		System.out.println("[POST] body: "+body);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setDoOutput(body!=null);
 		conn.setRequestMethod("POST");
@@ -159,6 +166,7 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 		}
 		
 		String response = new BufferedReader(new InputStreamReader((conn.getInputStream()))).readLine();
+		System.out.println("[POST] response: "+response);
 
 		if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
 			throw new IOException("HTTP POST failed : HTTP error code : " + conn.getResponseCode());
@@ -186,15 +194,15 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 	 *         message.
 	 * @throws IOException
 	 */
-	public String getJobStatus(String jobId) throws IOException, InterruptedException {
-		final String[] ret = new String[]{null};
+	public String getJobStatus(String jobId, String title) throws IOException, InterruptedException {
+		final AtomicReference<String> ar = new AtomicReference<String>();
 		
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IProgressService ps = wb.getProgressService();
 		try {
 			ps.busyCursorWhile(new IRunnableWithProgress() {
 				public void run(IProgressMonitor pm) throws InterruptedException {
-					pm.beginTask("Job Status for "+jobId, STATUS_REQUEST_TIMEOUT);
+					pm.beginTask("Waiting for Job "+jobId+":\n\n"+title, STATUS_REQUEST_TIMEOUT);
 					long startTime = System.currentTimeMillis();
 					long stopTime = startTime;
 					do {
@@ -210,7 +218,7 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 									result = null;
 							}
 							if (status!=null && result!=null)
-								ret[0] = status + ":" + result;
+								ar.set(status + ":" + result);
 							stopTime = System.currentTimeMillis();
 							pm.worked(STATUS_REQUEST_DELAY);
 							
@@ -223,9 +231,13 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 						if (pm.isCanceled())
 							throw new InterruptedException("Operation canceled");
 					}
-					while (ret[0]==null && stopTime - startTime < STATUS_REQUEST_TIMEOUT);
+					while (ar.get()==null && stopTime - startTime < STATUS_REQUEST_TIMEOUT);
 					pm.done();
-					System.out.println("Request completed in "+ (stopTime - startTime) / 1000.0 + " sec");
+					System.out.println(
+							"\n----------------------------------\n"+
+							"Job "+jobId+" completed in "+(stopTime - startTime) / 1000.0+" sec\n"+
+							"Status: " + ar.get()+
+							"\n----------------------------------\n");
 				}
 			});
 		}
@@ -234,9 +246,18 @@ public abstract class KieServiceDelegate implements IKieServiceDelegate, IKieNav
 			return null;
 		}
 
-		return ret[0];
+		return ar.get();
 	}
-
+	
+	public void deleteJob(String jobId) {
+		try {
+			httpDelete("jobs/" + jobId);
+		}
+		catch (Exception e) {
+			// ignore
+		}
+	}
+	
 	public String getUsername() {
 		return handler.getPreference(PREF_SERVER_USERNAME, "admin");
 	}
